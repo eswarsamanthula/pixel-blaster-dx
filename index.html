@@ -859,7 +859,7 @@ function applySnapshot(d){
 //  MAIN UPDATE
 // ══════════════════════════════════════════
 function update(){
-  if(state!=='playing'||gamePaused)return;
+  if((state!=='playing'&&state!=='title')||gamePaused)return;
   frameCount++;
 
   // Stars
@@ -899,6 +899,8 @@ function update(){
   // Bullets
   bullets=bullets.filter(b=>{b.x+=b.vx||0;b.y+=b.vy||-10;return b.y>-20&&b.x>-20&&b.x<W+20;});
 
+  // Only process collisions + player input when actually playing
+  if(state!=='playing'){particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life-=p.decay;p.vx*=.93;p.vy*=.93;});particles=particles.filter(p=>p.life>0);return;}
   // Drops
   drops=drops.filter(d=>{
     d.y+=d.vy;d.anim+=.1;
@@ -1077,7 +1079,7 @@ function draw(){
   ctx.fillStyle='#05050f';ctx.fillRect(-10,-10,W+20,H+20);
   drawStars();
 
-  if(state==='title'&&(!enemies||enemies.length===0)&&!boss)return;
+  if(state==='lobby'){ctx.restore();return;}
 
   // Boss
   if(boss){
@@ -1225,8 +1227,15 @@ function launchGame(){
 }
 
 function startGame(){
-  overlayEl.style.display='none';state='playing';
+  overlayEl.style.display='none';
+  overlayEl.style.background='';
+  overlayEl.innerHTML='';
+  state='playing';
   if(gamePaused){gamePaused=false;pauseOverlay.classList.remove('show');}
+  // Re-init if somehow no enemies
+  if(!enemies||enemies.length===0&&!boss){spawnWave();}
+  if(!p1){resetGame();}
+  updateHUD();
 }
 
 function startLocalGame(mode){gameMode=mode;showCountdown(()=>startGame());}
