@@ -228,14 +228,6 @@ canvas{
 
 /* ── COMBO ── */
 #combo-display{position:absolute;top:10px;left:50%;transform:translateX(-50%);font-size:10px;color:#ff8800;text-shadow:0 0 12px #ff8800;display:none;pointer-events:none;z-index:55;}
-@keyframes scorepop{0%{transform:scale(1);}40%{transform:scale(1.5);}100%{transform:scale(1);}}
-@keyframes scoreglow{0%,100%{text-shadow:0 0 6px rgba(0,255,136,.5);}50%{text-shadow:0 0 22px var(--green),0 0 40px rgba(0,255,136,.4);}}
-.score-pop{animation:scorepop .18s ease-out;}
-.score-glow{animation:scoreglow .35s ease-out;}
-@keyframes scorepop{0%{transform:scale(1);}40%{transform:scale(1.4);}100%{transform:scale(1);}}
-@keyframes scoreglow{0%,100%{text-shadow:0 0 6px rgba(0,255,136,.5);}50%{text-shadow:0 0 18px var(--green),0 0 30px rgba(0,255,136,.4);}}
-.score-pop{animation:scorepop .18s ease-out;}
-.score-glow{animation:scoreglow .3s ease-out;}
 
 /* ── CHAT ── */
 #chat{
@@ -286,9 +278,8 @@ canvas{
   box-shadow:0 0 24px rgba(0,255,136,.4),inset 0 0 16px rgba(0,255,136,.2);
   transform:scale(.88);
 }
-.mbtn.bomb-btn{width:52px;height:52px;background:rgba(255,68,102,.18);border-color:#ff4466;font-size:18px;transition:opacity .2s,filter .2s;}
+.mbtn.bomb-btn{width:52px;height:52px;background:rgba(255,68,102,.18);border-color:#ff4466;font-size:18px;}
 .mbtn.bomb-btn.pressed{background:rgba(255,68,102,.38);}
-.mbtn.bomb-btn.empty{opacity:.3;filter:grayscale(1);pointer-events:none;}
 .mbtn.sm{width:44px;height:44px;font-size:10px;border-color:#446644;color:#446644;}
 .mbtn.sm.active{border-color:#ffcc00;color:#ffcc00;background:rgba(255,204,0,.18);}
 
@@ -335,9 +326,6 @@ canvas{
 .screen-shake{animation:shake .2s linear;}
 @keyframes floatup{0%{opacity:1;transform:translateY(0);}100%{opacity:0;transform:translateY(-40px);}}
 @keyframes overlayIn{from{opacity:0;transform:scale(.96);}to{opacity:1;transform:scale(1);}}
-@keyframes dots{0%{content:'...';}33%{content:''}66%{content:'..'}}
-.ldots::after{content:'...';animation:dotpulse 1s steps(4,end) infinite;}
-@keyframes dotpulse{0%{content:'';}25%{content:'.';}50%{content:'..';}75%,100%{content:'...'}}
 </style>
 </head>
 <body>
@@ -387,7 +375,7 @@ canvas{
       <h2>📡 HOST GAME</h2>
       <div class="llabel">YOUR ROOM CODE</div>
       <div class="lcode" id="room-code" title="Tap to copy">------</div>
-      <div class="lstatus" id="host-status"><span class="ldots">CREATING ROOM</span></div>
+      <div class="lstatus" id="host-status">CREATING ROOM...</div>
       <div class="llabel">SHARE CODE WITH FRIEND</div>
     </div>
     <div class="lback" id="host-back">← BACK</div>
@@ -398,7 +386,7 @@ canvas{
     <div class="lobby-card">
       <h2>🔗 JOIN GAME</h2>
       <div class="llabel">ENTER ROOM CODE</div>
-      <input class="linput" id="room-input" maxlength="6" placeholder="CODE" autocomplete="off" autocapitalize="characters" inputmode="text" style="text-align:center;text-transform:uppercase;">
+      <input class="linput" id="room-input" maxlength="6" placeholder="CODE" autocomplete="off" style="text-align:center;">
       <button class="lbtn gold" id="btn-connect">CONNECT</button>
       <div class="lstatus" id="join-status"></div>
     </div>
@@ -413,6 +401,7 @@ canvas{
       <button class="tb-btn" id="btn-sound">🔊</button>
       <button class="tb-btn" id="btn-fullscreen">⛶</button>
       <button class="tb-btn" id="btn-chat" style="display:none;">💬</button>
+      <button class="tb-btn" id="btn-back-menu" title="Back to Menu">✕</button>
     </div>
     <span id="diff-label" style="font-size:7px;color:#446644;"></span>
     <span id="combo-hud" style="font-size:8px;color:#ff8800;min-width:60px;text-align:right;"></span>
@@ -455,8 +444,7 @@ canvas{
 <div id="mobile-controls">
   <div id="joystick-zone"><div id="joy-base"></div><div id="joy-knob"></div></div>
   <div class="mctrl-group" style="margin-left:130px;">
-    <button class="mbtn sm" id="btn-m-autofire" title="Autofire">A</button>
-    <button class="mbtn sm" id="btn-m-pause" title="Pause">⏸</button>
+    <button class="mbtn sm" id="btn-m-autofire">A</button>
   </div>
   <div class="mctrl-group">
     <button class="mbtn bomb-btn" id="btn-m-bomb">💣</button>
@@ -601,13 +589,13 @@ function diffLives(){return difficulty==='insane'?1:difficulty==='hard'?2:3;}
 function diffMult(){return difficulty==='easy'?.6:difficulty==='hard'?1.4:difficulty==='insane'?1.8:1;}
 
 function mkPlayer(x,col,ship,id){
-  return{x,y:H-85,w:48,h:36,speed:4.5,col,ship,id,
+  return{x,y:H-90,w:48,h:36,speed:4.5,col,ship,id,
     invincible:0,shootCD:0,lives:diffLives(),
     shield:0,rapid:0,triple:0,bombs:0,dead:false,bombCD:0};
 }
 
 function resetGame(){
-  p1=mkPlayer(W/3-24,'#00ff88',SHIP1,'p1');
+  p1=mkPlayer(W/2-24,'#00ff88',SHIP1,'p1');  // centered start
   p2=gameMode==='single'
     ?{dead:true,invincible:0,lives:0,shield:0,rapid:0,triple:0,bombs:0,bombCD:0,id:'p2',x:-999,y:0,w:0,h:0,col:'#ff88ff'}
     :mkPlayer(2*W/3-24,'#ff88ff',SHIP2,'p2');
@@ -670,20 +658,14 @@ function screenShake(t=8){screenShakeTimer=Math.max(screenShakeTimer,t);}
 //  HUD
 // ══════════════════════════════════════════
 function updateHUD(){
-  const s1el=document.getElementById('score1'),s2el=document.getElementById('score2');
-  const olds1=s1el.textContent,olds2=s2el.textContent;
-  s1el.textContent=score1;s2el.textContent=score2;
-  if(String(score1)!==olds1){s1el.classList.remove('score-pop');void s1el.offsetWidth;s1el.classList.add('score-pop');}
-  if(String(score2)!==olds2){s2el.classList.remove('score-pop');void s2el.offsetWidth;s2el.classList.add('score-pop');}
+  document.getElementById('score1').textContent=score1;
+  document.getElementById('score2').textContent=score2;
   document.getElementById('hisc').textContent=hiScore;
   document.getElementById('l1').textContent=p1Name+': '+'♥'.repeat(Math.max(0,p1.lives));
   document.getElementById('l2').textContent=(gameMode==='single'?'':p2Name+': '+'♥'.repeat(Math.max(0,p2.lives)));
   document.getElementById('pt1s').style.width=(p1.shield/600*100)+'%';
   document.getElementById('pt1r').style.width=(p1.rapid/600*100)+'%';
   document.getElementById('bc1').textContent=p1.bombs;
-  // Bomb btn dim when 0
-  const bb=document.getElementById('btn-m-bomb');
-  if(bb){const myPl=(gameMode!=='online'||myRole==='p1')?p1:p2;bb.classList.toggle('empty',myPl.bombs<=0);}
   document.getElementById('pt2s').style.width=(p2.shield/600*100)+'%';
   document.getElementById('pt2r').style.width=(p2.rapid/600*100)+'%';
   document.getElementById('bc2').textContent=p2.bombs;
@@ -701,6 +683,7 @@ function updateComboHud(){
 //  INPUT
 // ══════════════════════════════════════════
 let keys={};
+const mstate={left:false,right:false,shoot:false,bomb:false};
 let mLeft=false,mRight=false,mShoot=false,mBomb=false,autoFire=false;
 let joyX=0; // -1..1 from joystick
 
@@ -709,10 +692,10 @@ function getLocalInput(forId){
     if(forId==='p1') return{left:!!keys['ArrowLeft'],right:!!keys['ArrowRight'],shoot:!!(keys[' ']||keys['z']),bomb:!!keys['x']};
     if(forId==='p2') return{left:!!keys['a'],right:!!keys['d'],shoot:!!(keys['w']||keys['q']),bomb:!!keys['e']};
   }
-  return{left:!!(keys['ArrowLeft']||keys['a']||mLeft||joyX<-.2),
-         right:!!(keys['ArrowRight']||keys['d']||mRight||joyX>.2),
-         shoot:!!(keys[' ']||keys['z']||mShoot||autoFire),
-         bomb:!!(keys['x']||mBomb)};
+  return{left:!!(keys['ArrowLeft']||keys['a']||mstate.left||joyX<-.2),
+         right:!!(keys['ArrowRight']||keys['d']||mstate.right||joyX>.2),
+         shoot:!!(keys[' ']||keys['z']||mstate.shoot||autoFire),
+         bomb:!!(keys['x']||mstate.bomb)};
 }
 
 // ══════════════════════════════════════════
@@ -789,19 +772,24 @@ function createRoom(){
   let p;try{p=new Peer(code,{debug:0});}catch(e){document.getElementById('host-status').textContent='PEER ERROR';return;}
   const to=setTimeout(()=>document.getElementById('host-status').textContent='SERVER TIMEOUT',12000);
   p.on('open',()=>{
-    clearTimeout(to);peer=p;isHost=true;gameMode='online';
-    document.getElementById('host-status').innerHTML='<span class="ldots">READY — WAITING FOR P2</span>';
+    clearTimeout(to);peer=p;isHost=true;gameMode='online';myRole='p1';
+    document.getElementById('host-status').textContent='READY — WAITING FOR P2...';
     p.on('connection',c=>{
       conn=c;
       document.getElementById('host-status').textContent='PEER CONNECTING...';
       c.on('open',()=>{
         onlineOK=true;
-        document.getElementById('host-status').textContent='CONNECTED! STARTING...';
-        const seed=~~(Math.random()*2147483647);seedRng(seed);
-        try{c.send({t:'init',seed});}catch(e){}
-        setTimeout(startOnlineGame,600);
+        document.getElementById('host-status').textContent='CONNECTED! WAITING FOR P2...';
+        // Don't start yet — wait for joiner 'ready' signal
       });
-      c.on('data',onData);
+      c.on('data',d=>{
+        if(d&&d.t==='ready'){
+          // P2 is ready — now send init+start
+          const seed=~~(Math.random()*2147483647);seedRng(seed);
+          try{c.send({t:'init',seed});}catch(e){}
+          setTimeout(()=>{try{c.send({t:'start'});}catch(e){}; setTimeout(startOnlineGame,400);},300);
+        } else { onData(d); }
+      });
       c.on('close',onDisconn);
       c.on('error',e=>console.warn('conn err',e));
     });
@@ -816,16 +804,27 @@ function joinRoom(code){
   let p;try{p=new Peer(undefined,{debug:0});}catch(e){document.getElementById('join-status').textContent='PEER ERROR';return;}
   const to=setTimeout(()=>document.getElementById('join-status').textContent='TIMEOUT',12000);
   p.on('open',()=>{
-    clearTimeout(to);peer=p;isHost=false;gameMode='online';
+    clearTimeout(to);peer=p;isHost=false;gameMode='online';myRole='p2';
     document.getElementById('join-status').textContent='CONNECTING TO HOST...';
-    const c=p.connect(clean,{serialization:'json',reliable:false});
+    const c=p.connect(clean,{serialization:'json',reliable:true});
     conn=c;
     const cto=setTimeout(()=>document.getElementById('join-status').textContent='HOST NOT FOUND',10000);
-    c.on('open',()=>{clearTimeout(cto);onlineOK=true;document.getElementById('join-status').textContent='CONNECTED!';});
+    c.on('open',()=>{
+      clearTimeout(cto);onlineOK=true;
+      document.getElementById('join-status').textContent='CONNECTED! WAITING...';
+      // Signal host we are ready
+      try{c.send({t:'ready'});}catch(e){}
+    });
     c.on('data',d=>{
-      if(d.t==='init'){seedRng(d.seed);}
-      else if(d.t==='start'){startOnlineGame();}
-      else onData(d);
+      if(!d)return;
+      if(d.t==='init'){
+        seedRng(d.seed);
+        // Store seed, wait for explicit start
+      } else if(d.t==='start'){
+        if(state!=='playing') startOnlineGame();
+      } else {
+        onData(d);
+      }
     });
     c.on('close',onDisconn);
     c.on('error',e=>{clearTimeout(cto);document.getElementById('join-status').textContent='CONN FAILED';});
@@ -1045,9 +1044,12 @@ function update(){
   // Wave clear
   if(!boss&&enemies.length===0){
     sfxWaveClear();
-    waveBanner.textContent='WAVE '+wave+' CLEAR!';
-    waveBanner.style.display='block';waveClearTimer=90;
+    if(state==='playing'){
+      waveBanner.textContent='WAVE '+(wave-1)+' CLEAR!';
+      waveBanner.style.display='block';waveClearTimer=90;
+    }
     combo=0;comboTimer=0;updateComboHud();
+    drops=[];  // clear leftover drops
     spawnWave();
   }
 
@@ -1082,6 +1084,7 @@ function drawPlayer(pl){
     ctx.beginPath();ctx.ellipse(pl.x+pl.w/2,pl.y+pl.h/2,pl.w/2+9,pl.h/2+9,0,0,Math.PI*2);ctx.stroke();
     ctx.globalAlpha=1;ctx.lineWidth=1;
   }
+  if(!pl.ship)return;
   drawSprite(pl.ship,pl.x,pl.y,pl.col,pl.id==='p2'?'#ff88ff':'#ff4466');
   // Engine flame
   const fx=pl.x+14+Math.random()*20;
@@ -1207,6 +1210,9 @@ function showCountdown(cb){
 }
 
 function showGameOver(){
+  // Hide wave banner immediately
+  waveBanner.style.display='none';waveClearTimer=0;
+  comboDis.style.display='none';combo=0;
   const winner=gameMode==='single'?'':score1>score2?p1Name+' WINS!':score2>score1?p2Name+' WINS!':'DRAW!';
   showGameOverMsg('GAME OVER',winner,'YOU: '+score1+(gameMode!=='single'?' · RIVAL: '+score2:''),'HI: '+hiScore);
   saveLB(p1Name,score1);if(gameMode!=='single')saveLB(p2Name,score2);
@@ -1269,14 +1275,19 @@ function startOnlineGame(){
 let joyActive=false,joyStartX=0;
 const JOY_R=45;
 joystickZone.addEventListener('touchstart',e=>{
-  e.preventDefault();const t=e.touches[0];
+  e.preventDefault();
+  const t=e.touches[0];
   const r=joystickZone.getBoundingClientRect();
-  joyActive=true;joyStartX=t.clientX-r.left-55;
+  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  joyActive=true;
+  // Record center for this touch
+  joystickZone._cx=cx;joystickZone._cy=cy;
 },{passive:false});
 joystickZone.addEventListener('touchmove',e=>{
   e.preventDefault();if(!joyActive)return;
-  const t=e.touches[0];const r=joystickZone.getBoundingClientRect();
-  const dx=Math.max(-JOY_R,Math.min(JOY_R,t.clientX-r.left-55));
+  const t=e.touches[0];
+  const cx=joystickZone._cx||joystickZone.getBoundingClientRect().left+60;
+  const dx=Math.max(-JOY_R,Math.min(JOY_R,t.clientX-cx));
   joyX=dx/JOY_R;
   joyKnob.style.transform=`translate(calc(-50% + ${dx}px),-50%)`;
 },{passive:false});
@@ -1289,26 +1300,35 @@ joystickZone.addEventListener('touchend',e=>{
 //  MOBILE BUTTONS
 // ══════════════════════════════════════════
 function setupMobile(){
-  const map={'btn-m-shoot':'mShoot','btn-m-bomb':'mBomb'};
-  Object.entries(map).forEach(([id,key])=>{
-    const el=document.getElementById(id);
-    const on=e=>{e.preventDefault();window[key]=true;el.classList.add('pressed');if(state==='title'||state==='gameover')startGame();};
-    const off=e=>{e.preventDefault();window[key]=false;el.classList.remove('pressed');};
-    el.addEventListener('touchstart',on,{passive:false});el.addEventListener('touchend',off,{passive:false});el.addEventListener('touchcancel',off,{passive:false});
-    el.addEventListener('mousedown',on);el.addEventListener('mouseup',off);el.addEventListener('mouseleave',off);
-  });
+  // SHOOT button
+  const shootEl=document.getElementById('btn-m-shoot');
+  if(shootEl){
+    const onS=e=>{e.preventDefault();mstate.shoot=true;shootEl.classList.add('pressed');if(state==='title'||state==='gameover')startGame();};
+    const offS=e=>{e.preventDefault();mstate.shoot=false;shootEl.classList.remove('pressed');};
+    shootEl.addEventListener('touchstart',onS,{passive:false});
+    shootEl.addEventListener('touchend',offS,{passive:false});
+    shootEl.addEventListener('touchcancel',offS,{passive:false});
+    shootEl.addEventListener('mousedown',onS);
+    shootEl.addEventListener('mouseup',offS);
+    shootEl.addEventListener('mouseleave',offS);
+  }
+  // BOMB button
+  const bombEl=document.getElementById('btn-m-bomb');
+  if(bombEl){
+    const onB=e=>{e.preventDefault();mstate.bomb=true;bombEl.classList.add('pressed');};
+    const offB=e=>{e.preventDefault();mstate.bomb=false;bombEl.classList.remove('pressed');};
+    bombEl.addEventListener('touchstart',onB,{passive:false});
+    bombEl.addEventListener('touchend',offB,{passive:false});
+    bombEl.addEventListener('touchcancel',offB,{passive:false});
+    bombEl.addEventListener('mousedown',onB);
+    bombEl.addEventListener('mouseup',offB);
+    bombEl.addEventListener('mouseleave',offB);
+  }
   const af=document.getElementById('btn-m-autofire');
   const afTog=e=>{e.preventDefault();autoFire=!autoFire;af.classList.toggle('active',autoFire);};
   af.addEventListener('touchstart',afTog,{passive:false});af.addEventListener('click',afTog);
   document.getElementById('btn-m-mute').addEventListener('touchstart',e=>{e.preventDefault();toggleSound();},{passive:false});
   document.getElementById('btn-m-mute').addEventListener('click',toggleSound);
-  // Pause button mobile
-  const pauseBtn=document.getElementById('btn-m-pause');
-  if(pauseBtn){
-    const togglePause=e=>{e.preventDefault();if(state!=='playing')return;gamePaused=!gamePaused;pauseOverlay.classList.toggle('show',gamePaused);pauseBtn.textContent=gamePaused?'▶':'⏸';};
-    pauseBtn.addEventListener('touchstart',togglePause,{passive:false});
-    pauseBtn.addEventListener('click',togglePause);
-  }
 }
 
 // ══════════════════════════════════════════
@@ -1338,6 +1358,12 @@ canvas.addEventListener('touchstart',e=>{
 //  TOOLBAR
 // ══════════════════════════════════════════
 document.getElementById('btn-sound').addEventListener('click',toggleSound);
+document.getElementById('btn-back-menu').addEventListener('click',()=>{
+  if(confirm('Return to menu? Current game will end.')){
+    state='lobby';stopMusic();overlayEl.style.display='none';
+    showLobbyMenu();disconnectOnline();
+  }
+});
 document.getElementById('btn-fullscreen').addEventListener('click',()=>{
   if(document.fullscreenElement)document.exitFullscreen();
   else document.documentElement.requestFullscreen().catch(()=>{});
