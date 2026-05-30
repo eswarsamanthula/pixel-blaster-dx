@@ -1255,11 +1255,11 @@ function startGame(){
   overlayEl.style.display='none';
   overlayEl.style.background='';
   overlayEl.innerHTML='';
-  state='playing';
   if(gamePaused){gamePaused=false;pauseOverlay.classList.remove('show');}
-  // Re-init if somehow no enemies
-  if(!enemies||enemies.length===0&&!boss){spawnWave();}
-  if(!p1){resetGame();}
+  waveBanner.style.display='none';waveClearTimer=0;
+  // Full reset on retry — always start fresh
+  resetGame();
+  state='playing';
   updateHUD();
 }
 
