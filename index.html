@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>PIXEL BLASTER DX</title>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
@@ -28,6 +31,10 @@ body{
   min-height:100vh;font-family:'Press Start 2P',monospace;
   overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;
 }
+/* R5: Emoji consistent rendering */
+.emoji,button{font-family:'Press Start 2P','Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',monospace;}
+/* Powerbar emoji size lock */
+#powerbar span[style*='font-size:8px']{font-size:12px!important;line-height:1;display:inline-block;width:16px;text-align:center;}
 
 /* ── CRT SCANLINE — on canvas wrapper only, not full body ── */
 body::after{
@@ -48,6 +55,8 @@ body::after{
   position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
   background:var(--bg);z-index:100;gap:12px;padding:20px;
   overflow-y:auto;overflow-x:hidden;
+  /* Smooth scroll on iOS */
+  -webkit-overflow-scrolling:touch;
   /* atmosphere grid */
   background-image:
     linear-gradient(rgba(0,255,136,.025) 1px,transparent 1px),
@@ -348,8 +357,96 @@ canvas{
 }
 
 /* ── RESPONSIVE ── */
-@media(max-width:540px){
-  #hud,#top-bar,#powerbar,#lives-row{font-size:7px;padding:3px 5px;}
+/* ══ RESPONSIVE SYSTEM ══ */
+
+/* Large desktop */
+@media(min-width:900px){
+  #wrap{width:520px;}
+  .lobby-card{width:320px;}
+}
+
+/* Tablet (768px) */
+@media(max-width:768px){
+  #wrap{width:min(520px,100vw);}
+  .lobby-card{width:min(300px,90vw);}
+  #lobby h1{font-size:clamp(16px,4vw,26px);}
+}
+
+/* Large phone (430px) */
+@media(max-width:430px){
+  #hud,#top-bar,#powerbar,#lives-row{font-size:6px;padding:2px 4px;}
+  .hud-score{font-size:9px;}
+  .hud-score-block{min-width:38px;}
+  .lobby-card{width:min(280px,92vw);padding:10px 12px;}
+  .lbtn{font-size:8px;padding:11px 12px;}
+  #lobby h1{font-size:clamp(14px,5vw,22px);}
+  .mbtn{width:52px;height:52px;}
+  .mbtn.shoot-btn{width:64px;height:64px;}
+  #joystick-zone{width:100px;height:100px;}
+}
+
+/* Small phone (375px) */
+@media(max-width:375px){
+  #hud,#top-bar,#powerbar,#lives-row{font-size:5px;padding:2px 3px;}
+  .hud-score{font-size:8px;}
+  .hud-score-block{min-width:32px;}
+  .lobby-card{width:min(260px,94vw);padding:8px 10px;}
+  .lbtn{font-size:7px;padding:10px 10px;}
+  #lobby{gap:8px;padding:14px;}
+  .mbtn{width:46px;height:46px;font-size:16px;}
+  .mbtn.shoot-btn{width:58px;height:58px;font-size:10px;}
+  .mbtn.sm{width:38px;height:38px;font-size:9px;}
+  #joystick-zone{width:90px;height:90px;left:6px;}
+}
+
+/* R2: Lobby scroll on small screens */
+@media(max-height:700px){
+  #lobby{
+    justify-content:flex-start;
+    padding-top:16px;
+    gap:8px;
+  }
+  #lobby h1{font-size:clamp(14px,4vw,20px);margin-bottom:0;}
+}
+
+/* R4: Landscape mobile */
+@media(max-height:500px) and (orientation:landscape){
+  #lobby{
+    flex-direction:row;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    justify-content:center;
+    gap:8px;
+    padding:8px;
+  }
+  #lobby h1{width:100%;font-size:14px;margin-bottom:0;line-height:1.3;}
+  #lobby h1::after{display:none;}
+  .lobby-card{width:calc(50% - 8px);max-width:240px;}
+  #menu-main{flex-direction:row;flex-wrap:wrap;gap:6px;}
+  #menu-main>*{width:calc(50% - 3px);}
+  /* Game in landscape: controls on sides */
+  #mobile-controls{
+    flex-direction:row;
+    bottom:4px;
+    padding:4px 8px;
+  }
+  #wrap{
+    flex-direction:row;
+    align-items:center;
+    width:100vw;
+  }
+  #wrap canvas{
+    height:calc(100vh - 60px);
+    width:auto;
+  }
+}
+
+/* R5: Emoji normalization across platforms */
+.mbtn,#powerbar span{
+  font-style:normal;
+  font-variant:normal;
+  line-height:1;
+  -webkit-font-smoothing:antialiased;
 }
 
 /* ── ANIMATIONS ── */
@@ -1528,6 +1625,51 @@ document.querySelectorAll('.dbtn').forEach(btn=>{
 // ══════════════════════════════════════════
 function loop(){update();draw();requestAnimationFrame(loop);}
 setupMobile();showLobbyMenu();loop();
+
+// ── R3: Canvas responsive scaling ──
+// Canvas internal resolution stays 520x540 (pixel-perfect)
+// CSS scales it via width:100% — already set
+// But on very narrow screens we need to constrain height too
+function resizeGame(){
+  const vw=window.innerWidth;
+  const vh=window.innerHeight;
+  const isLandscape=vw>vh;
+  const isMob=vw<600;
+
+  if(isMob&&!isLandscape){
+    // Portrait mobile: canvas fills width, controls below
+    const ctrlH=document.getElementById('mobile-controls').offsetHeight||130;
+    const hudH=document.getElementById('hud')?document.getElementById('hud').offsetHeight:0;
+    const topH=document.getElementById('top-bar')?document.getElementById('top-bar').offsetHeight:0;
+    const pwrH=document.getElementById('powerbar')?document.getElementById('powerbar').offsetHeight:0;
+    const livH=document.getElementById('lives-row')?document.getElementById('lives-row').offsetHeight:0;
+    const available=vh-hudH-topH-pwrH-livH-ctrlH-16;
+    const canvasEl=document.getElementById('c');
+    if(canvasEl&&available>100){
+      canvasEl.style.maxHeight=available+'px';
+      canvasEl.style.width='auto';
+      // keep aspect ratio: 520/540
+      const w=Math.min(available*(520/540),vw-4);
+      canvasEl.style.width=w+'px';
+      canvasEl.style.maxHeight='';
+    }
+  } else if(isMob&&isLandscape){
+    // Landscape: taller canvas
+    const canvasEl=document.getElementById('c');
+    if(canvasEl){
+      const h=vh-60;
+      canvasEl.style.height=h+'px';
+      canvasEl.style.width=(h*(520/540))+'px';
+    }
+  } else {
+    // Desktop: reset
+    const canvasEl=document.getElementById('c');
+    if(canvasEl){canvasEl.style.width='';canvasEl.style.height='';}
+  }
+}
+window.addEventListener('resize',resizeGame);
+window.addEventListener('orientationchange',()=>setTimeout(resizeGame,200));
+resizeGame();
 
 // Pixel favicon
 (function(){
