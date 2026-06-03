@@ -172,7 +172,27 @@ body::after{
 .lb-score{color:var(--gold);text-shadow:0 0 6px rgba(255,204,0,.4);}
 
 /* ── GAME WRAPPER ── */
-#wrap{position:relative;display:flex;flex-direction:column;align-items:center;width:min(520px,100vw);}
+#wrap{
+  position:relative;display:flex;flex-direction:column;
+  align-items:center;width:min(520px,100vw);
+}
+/* U3: Mobile — game area fills viewport minus controls */
+@media(max-width:600px){
+  body{
+    justify-content:flex-start;
+    overflow:hidden;
+  }
+  #wrap{
+    width:100vw;
+    flex:1;
+  }
+  #wrap canvas{
+    width:100vw !important;
+    max-width:520px;
+    height:auto;
+    aspect-ratio:520/540;
+  }
+}
 #top-bar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:4px 6px;}
 #hud{
   width:100%;display:flex;justify-content:space-between;align-items:center;
@@ -306,8 +326,21 @@ canvas{
 #chat-input::placeholder{color:#1a3a1a;}
 
 /* ── MOBILE CONTROLS ── */
-#mobile-controls{position:fixed;left:0;right:0;bottom:0;display:none;justify-content:space-between;align-items:flex-end;padding:8px 14px 18px;pointer-events:none;z-index:50;}
+#mobile-controls{
+  position:fixed;left:0;right:0;bottom:0;
+  display:none;justify-content:space-between;align-items:flex-end;
+  padding:8px 14px env(safe-area-inset-bottom,14px);
+  pointer-events:none;z-index:50;
+  /* Frosted glass bg so controls don't blend into game */
+  background:linear-gradient(to top,rgba(0,0,0,.7) 0%,rgba(0,0,0,.4) 70%,transparent 100%);
+  height:110px;
+}
 #mobile-controls.active{display:flex;}
+/* When controls visible, push canvas up */
+#mobile-controls.active~* #wrap canvas,
+body.has-controls #wrap canvas{
+  margin-bottom:110px;
+}
 .mctrl-group{display:flex;gap:10px;align-items:flex-end;}
 .mbtn{width:60px;height:60px;border-radius:50%;border:2px solid rgba(255,255,255,.25);background:rgba(0,0,0,.55);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;pointer-events:auto;touch-action:none;backdrop-filter:blur(6px);transition:transform .05s,background .05s;-webkit-tap-highlight-color:transparent;}
 .mbtn:active,.mbtn.pressed{transform:scale(.88);background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.55);}
@@ -566,7 +599,7 @@ canvas{
       <span class="hud-label">W</span>
       <span class="hud-score" id="wavenum">1</span>
     </span>
-    <span id="hud-p2-name" class="hud-score-block p2c">
+    <span id="hud-p2-wrap" class="hud-score-block p2c">
       <span class="hud-label" id="p2-label">P2</span>
       <span class="hud-score" id="score2">0</span>
     </span>
@@ -580,14 +613,14 @@ canvas{
     <div id="chat"><div id="chat-log"></div><input id="chat-input" placeholder="CHAT... (ENTER)"></div>
   </div>
   <div id="powerbar">
-    <div class="pbar">
-      <span style="color:#00ff88;">P1</span>
+    <div class="pbar" id="pbar-p1">
+      <span style="color:var(--green);">P1</span>
       <span style="font-size:8px;">🛡</span><div class="ptimer"><div class="ptimer-fill" id="pt1s" style="background:#00aaff;width:0%"></div></div>
       <span style="font-size:8px;">⚡</span><div class="ptimer"><div class="ptimer-fill" id="pt1r" style="background:#ffcc00;width:0%"></div></div>
       <span style="font-size:8px;">💣</span><span id="bc1" style="color:#ff8800;font-size:7px;">0</span>
     </div>
-    <div class="pbar">
-      <span style="color:#ff88ff;">P2</span>
+    <div class="pbar" id="pbar-p2">
+      <span style="color:var(--purple);">P2</span>
       <span style="font-size:8px;">🛡</span><div class="ptimer"><div class="ptimer-fill" id="pt2s" style="background:#00aaff;width:0%"></div></div>
       <span style="font-size:8px;">⚡</span><div class="ptimer"><div class="ptimer-fill" id="pt2r" style="background:#ffcc00;width:0%"></div></div>
       <span style="font-size:8px;">💣</span><span id="bc2" style="color:#ff88ff;font-size:7px;">0</span>
@@ -820,11 +853,35 @@ function screenShake(t=8){screenShakeTimer=Math.max(screenShakeTimer,t);}
 //  HUD
 // ══════════════════════════════════════════
 function updateHUD(){
+  const isSingle=gameMode==='single';
+  // U1: Hide all P2 UI in single player
+  const p2els=['hud-p2-wrap','pbar-p2','l2'];
+  p2els.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.style.display=isSingle?'none':'';
+  });
+  // In single player, center remaining HUD items
+  const hudEl=document.getElementById('hud');
+  if(hudEl)hudEl.style.justifyContent=isSingle?'space-around':'space-between';
   document.getElementById('score1').textContent=score1;
   document.getElementById('score2').textContent=score2;
   document.getElementById('hisc').textContent=hiScore;
-  document.getElementById('l1').textContent=p1Name+': '+'♥'.repeat(Math.max(0,p1.lives));
-  document.getElementById('l2').textContent=(gameMode==='single'?'':p2Name+': '+'♥'.repeat(Math.max(0,p2.lives)));
+  const heartsP1='♥'.repeat(Math.max(0,p1.lives));
+  const l1el=document.getElementById('l1');
+  if(l1el){
+    l1el.textContent=p1Name+': '+(heartsP1||'💀');
+    l1el.style.opacity=p1.dead?'0.35':'1';
+    l1el.style.color=p1.lives<=1?'var(--red)':'';
+  }
+  if(gameMode!=='single'){
+    const heartsP2='♥'.repeat(Math.max(0,p2.lives));
+    const l2el=document.getElementById('l2');
+    if(l2el){
+      l2el.textContent=p2Name+': '+(heartsP2||'💀');
+      l2el.style.opacity=p2.dead?'0.35':'1';
+      l2el.style.color=p2.lives<=1?'var(--purple)':'';
+    }
+  }
   document.getElementById('pt1s').style.width=(p1.shield/600*100)+'%';
   document.getElementById('pt1r').style.width=(p1.rapid/600*100)+'%';
   document.getElementById('bc1').textContent=p1.bombs;
@@ -1362,7 +1419,7 @@ function showCountdown(cb){
   p2Name=gameMode==='online'?'RIVAL':'PLAYER2';
   document.getElementById('diff-label').textContent=difficulty.toUpperCase();
   const isMobile=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)||window.innerWidth<600||('ontouchstart' in window);
-  if(isMobile&&gameMode!=='local2'){mobileCtrl.classList.add('active');joystickZone.classList.add('active');}
+  if(isMobile&&gameMode!=='local2'){mobileCtrl.classList.add('active');joystickZone.classList.add('active');document.body.classList.add('has-controls');}
   if(gameMode==='online'){document.getElementById('btn-chat').style.display='';}
   // Init game objects so canvas draws stars during countdown
   state='title'; resetGame();
