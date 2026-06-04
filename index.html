@@ -187,7 +187,8 @@ body::after{
     flex:1;
   }
   #wrap canvas{
-    width:100vw !important;
+    display:block;
+    width:100% !important;
     max-width:520px;
     height:auto;
     aspect-ratio:520/540;
@@ -234,7 +235,20 @@ canvas{
   width:100%;display:flex;justify-content:space-between;padding:3px 8px;font-size:8px;
   background:rgba(0,0,0,.3);border-top:1px solid rgba(0,255,136,.05);
 }
-.tb-btn{background:transparent;border:1px solid #1a3a1a;color:#446644;font-size:11px;padding:3px 7px;cursor:pointer;font-family:'Press Start 2P',monospace;transition:all .12s;line-height:1;border-radius:2px;}
+
+.tb-btn{
+  background:transparent;
+  border:1px solid rgba(0,255,136,.2);
+  color:var(--text-dim);
+  font-size:13px;
+  padding:6px 10px;          /* bigger tap target */
+  min-width:36px;min-height:36px; /* 36px min = accessible */
+  cursor:pointer;
+  font-family:'Press Start 2P',monospace;
+  transition:all .12s;
+  line-height:1;border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+}
 .tb-btn:hover{border-color:var(--green);color:var(--green);}
 .tb-btn.active{border-color:var(--gold);color:var(--gold);}
 #toolbar{display:flex;gap:4px;}
@@ -292,7 +306,15 @@ canvas{
 #wave-banner.hiding{animation:wbfadeout .4s ease-in forwards;}
 
 /* ── COMBO ── */
-#combo-display{position:absolute;top:10px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--orange);text-shadow:0 0 12px var(--orange);display:none;pointer-events:none;z-index:55;}
+#combo-display{
+  position:absolute;top:8px;right:8px;left:auto;
+  transform:none;
+  font-size:9px;color:var(--orange);
+  text-shadow:0 0 12px var(--orange);
+  display:none;pointer-events:none;z-index:55;
+  background:rgba(0,0,0,.5);padding:3px 6px;border-radius:2px;
+  border:1px solid rgba(255,136,0,.3);
+}
 
 /* ── CHAT ── */
 #chat{
@@ -336,10 +358,14 @@ canvas{
   height:110px;
 }
 #mobile-controls.active{display:flex;}
-/* When controls visible, push canvas up */
-#mobile-controls.active~* #wrap canvas,
-body.has-controls #wrap canvas{
-  margin-bottom:110px;
+/* U4: When controls visible, canvas shrinks to fit above controls */
+body.has-controls #wrap{
+  padding-bottom:110px;
+}
+body.has-controls canvas{
+  max-height:calc(100vh - 110px - 60px) !important;
+  width:auto !important;
+  aspect-ratio:520/540;
 }
 .mctrl-group{display:flex;gap:10px;align-items:flex-end;}
 .mbtn{width:60px;height:60px;border-radius:50%;border:2px solid rgba(255,255,255,.25);background:rgba(0,0,0,.55);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;pointer-events:auto;touch-action:none;backdrop-filter:blur(6px);transition:transform .05s,background .05s;-webkit-tap-highlight-color:transparent;}
@@ -436,10 +462,25 @@ body.has-controls #wrap canvas{
 @media(max-height:700px){
   #lobby{
     justify-content:flex-start;
-    padding-top:16px;
-    gap:8px;
+    padding-top:10px;
+    gap:6px;
   }
-  #lobby h1{font-size:clamp(14px,4vw,20px);margin-bottom:0;}
+  #lobby h1{font-size:clamp(13px,4vw,18px);margin-bottom:0;}
+  #lobby h1::after{display:none;} /* hide decorative underline */
+  .lobby-card{padding:8px 12px;}
+  .lbtn{padding:10px 12px;}
+}
+/* U10: Very small screens — ultra compact */
+@media(max-height:500px){
+  /* Hide leaderboard to save space */
+  .lobby-card:has(#leaderboard-list){display:none;}
+}
+@media(max-height:560px){
+  #lobby{padding-top:6px;gap:4px;}
+  #lobby h1{font-size:12px;}
+  .lobby-card{padding:6px 10px;gap:6px;}
+  .lbtn{padding:8px 10px;font-size:7px;}
+  .dbtn{padding:6px 2px;font-size:6px;}
 }
 
 /* R4: Landscape mobile */
@@ -584,7 +625,7 @@ body.has-controls #wrap canvas{
       <button class="tb-btn" id="btn-back-menu" title="Back to Menu">✕</button>
     </div>
     <span id="diff-label" style="font-size:7px;color:#446644;"></span>
-    <span id="combo-hud" style="font-size:8px;color:#ff8800;min-width:60px;text-align:right;"></span>
+    <span id="combo-hud" style="font-size:7px;color:var(--orange);min-width:55px;text-align:right;text-shadow:0 0 8px var(--orange);"></span>
   </div>
   <div id="hud">
     <span id="hud-p1-name" class="hud-score-block" style="color:var(--green);">
@@ -813,7 +854,7 @@ function spawnWave(){
   const rows=Math.min(2+Math.floor(wave/2),4),cols=Math.min(5+wave,9);
   const sx=Math.floor((W-60)/cols),form=wave%4;
   for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
-    let y=40+r*44,x=30+c*sx;
+    let y=80+r*44,x=30+c*sx;  // U6: start lower, give breathing room
     if(form===1)y+=Math.abs(c-cols/2)*10;
     if(form===2&&Math.abs(r-Math.floor(rows/2))>cols/2-c-1)continue;
     const t=Math.min(r,2),hp=1+~~(wave>4)+~~(wave>8)+~~(difficulty==='hard')+~~(difficulty==='insane')*2;
