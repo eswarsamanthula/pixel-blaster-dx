@@ -7,6 +7,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>PIXEL BLASTER DX</title>
+<meta name="description" content="Retro pixel-art arcade space shooter with online multiplayer. Play free in browser — PC & mobile.">
+<meta property="og:title" content="PIXEL BLASTER DX">
+<meta property="og:description" content="Retro pixel-art arcade space shooter. 1P / 2P local / Online multiplayer. Free, no install.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://eswarsamanthula.github.io/pixel-blaster-dx/">
+<meta name="theme-color" content="#00ff88">
+<meta name="keywords" content="pixel game, arcade, space shooter, multiplayer, retro, browser game">
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
@@ -287,8 +294,16 @@ canvas{
 /* ── PAUSE ── */
 #pause-overlay{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(0,0,0,.7);z-index:60;pointer-events:none;}
 #pause-overlay.show{display:flex;}
-#pause-overlay span:first-child{font-size:22px;color:var(--gold);text-shadow:0 0 20px var(--gold);animation:blink 1s step-start infinite;}
-#pause-overlay span:last-child{font-size:7px;color:#446644;}
+#pause-overlay span:first-child{
+  font-size:22px;color:var(--gold);
+  text-shadow:0 0 20px var(--gold),0 0 40px rgba(255,204,0,.3);
+  animation:blink 1s step-start infinite;
+  letter-spacing:2px;
+}
+#pause-overlay span:last-child{
+  font-size:7px;color:var(--text-dim);
+  letter-spacing:1px;margin-top:4px;
+}
 
 /* ── WAVE CLEAR BANNER ── */
 #wave-banner{position:absolute;top:38%;left:50%;transform:translateX(-50%);font-size:18px;color:var(--gold);text-shadow:0 0 20px var(--gold),4px 4px 0 var(--gold-dark);display:none;pointer-events:none;white-space:nowrap;z-index:55;animation:wbpop .18s ease-out;}
@@ -648,7 +663,7 @@ body.has-controls canvas{
   <div style="position:relative;width:100%;">
     <canvas id="c" width="520" height="540"></canvas>
     <div id="overlay" style="display:none;"></div>
-    <div id="pause-overlay"><span>PAUSED</span><span>P / ESC TO RESUME</span></div>
+    <div id="pause-overlay"><span>⏸ PAUSED</span><span>P / ESC TO RESUME</span></div>
     <div id="wave-banner"></div>
     <div id="combo-display"></div>
     <div id="chat"><div id="chat-log"></div><input id="chat-input" placeholder="CHAT... (ENTER)"></div>
