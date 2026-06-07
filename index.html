@@ -921,7 +921,7 @@ let combo=0,comboTimer=0;
 let waveClearTimer=0;
 let screenShakeTimer=0;
 let p1Name='PLAYER1',p2Name='PLAYER2';
-let powerSelectActive=false,powerPickCount=0,powerPicked=[],wavePowers=[];
+let powerSelectActive=false,powerPickCount=0,powerPicked=[],wavePowers=[],wavePending=false;
 let screenShakeEnabled=true,colorblindMode=false,customKeys={};
 let reviveAvailable=false;
 let stats={kills:0,coinsEarned:0,gamesPlayed:0,wavesCleared:0,bossesKilled:0,highestCombo:0};
@@ -1097,6 +1097,7 @@ function hidePowerSelect(){
   powerSelectActive=false;
   const el=document.getElementById('power-select');
   if(el){el.style.display='none';if(el._timer)clearTimeout(el._timer);}
+  if(wavePending){wavePending=false;spawnWave();}
 }
 function applyWavePower(type){
   if(!p1||p1.dead)return;
@@ -1214,7 +1215,7 @@ function mkPlayer(x,col,ship,id){
 }
 
 function resetGame(){
-  coins=0;reviveAvailable=false;powerSelectActive=false;powerPicked=[];dailyMode=false;
+  coins=0;reviveAvailable=false;powerSelectActive=false;powerPicked=[];wavePending=false;dailyMode=false;
   p1=mkPlayer(W/2-24,'#00ff88',SHIP1,'p1');  // centered start
   p2=gameMode==='single'
     ?{dead:true,invincible:0,lives:0,shield:0,rapid:0,triple:0,bombs:0,bombCD:0,id:'p2',x:-999,y:0,w:0,h:0,col:'#ff88ff',_coinRate:1,_pierce:0,_magnet:false,_magnetStr:1,_overcharge:1,_megaShield:0,_rapidBoost:false,_penta:false,_megaBomb:false}
@@ -1774,11 +1775,11 @@ function update(){
       sfxWaveClear();
       waveBanner.textContent='WAVE '+(wave-1)+' CLEAR!';
       waveBanner.style.display='block';waveClearTimer=90;
-      setTimeout(()=>{if(state==='playing'&&!gamePaused)showPowerSelect();},400);
+      wavePending=true;
+      setTimeout(()=>{if(state==='playing'&&!gamePaused&&wavePending){showPowerSelect();}else if(wavePending){wavePending=false;spawnWave();}},400);
     }
     combo=0;comboTimer=0;updateComboHud();
     drops=[];coinDrops=[];  // clear leftover drops
-    spawnWave();
   }
 
   // Particles / floaters
