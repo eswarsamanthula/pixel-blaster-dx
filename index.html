@@ -14,6 +14,7 @@
 <meta property="og:url" content="https://eswarsamanthula.github.io/pixel-blaster-dx/">
 <meta name="theme-color" content="#00ff88">
 <meta name="keywords" content="pixel game, arcade, space shooter, multiplayer, retro, browser game">
+<link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
@@ -41,10 +42,10 @@ body{
 /* R5: Emoji consistent rendering */
 .emoji,button{font-family:'Press Start 2P','Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',monospace;}
 /* Powerbar emoji size lock */
-#powerbar span[style*='font-size:8px']{font-size:12px!important;line-height:1;display:inline-block;width:16px;text-align:center;}
+#powerbar .pbar span{font-size:12px;line-height:1;display:inline-block;width:16px;text-align:center;}
 
 /* ── CRT SCANLINE — on canvas wrapper only, not full body ── */
-body::after{
+body.game-active::after{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
   background:radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(0,0,0,.45) 100%);
 }
@@ -181,7 +182,7 @@ body::after{
 /* ── GAME WRAPPER ── */
 #wrap{
   position:relative;display:flex;flex-direction:column;
-  align-items:center;width:min(520px,100vw);
+  align-items:center;width:min(520px,100vw);overflow:hidden;
 }
 /* U3: Mobile — game area fills viewport minus controls */
 @media(max-width:600px){
@@ -193,9 +194,9 @@ body::after{
     width:100vw;
     flex:1;
   }
-  #wrap canvas{
+  body:not(.has-controls) #wrap canvas{
     display:block;
-    width:100% !important;
+    width:100%;
     max-width:520px;
     height:auto;
     aspect-ratio:520/540;
@@ -354,7 +355,7 @@ canvas{
 #chat-log::-webkit-scrollbar{width:2px;}
 #chat-log::-webkit-scrollbar-thumb{background:rgba(0,255,136,.3);}
 #chat-log .msg-rival{color:var(--purple);}
-#chat-log .msg-sys{color:var(--text-dim);font-style:italic;}
+#chat-log 
 #chat-input{
   width:100%;background:rgba(0,15,0,.6);border:none;
   border-top:1px solid rgba(0,255,136,.12);padding:5px 8px;
@@ -377,9 +378,9 @@ canvas{
 body.has-controls #wrap{
   padding-bottom:110px;
 }
-body.has-controls canvas{
-  max-height:calc(100vh - 110px - 60px) !important;
-  width:auto !important;
+body.has-controls #wrap canvas{
+  max-height:calc(100vh - 110px - 60px);
+  width:auto;
   aspect-ratio:520/540;
 }
 .mctrl-group{display:flex;gap:10px;align-items:flex-end;}
@@ -769,7 +770,7 @@ const sfxPU=()=>{beep(440,.08,'sine',.15);beep(660,.08,'sine',.15,.09);beep(880,
 const sfxBoss=()=>{beep(60,.5,'sawtooth',.28);beep(80,.5,'sawtooth',.18,.1);};
 const sfxBomb=()=>{beep(80,.5,'sawtooth',.22);beep(40,.7,'sawtooth',.22,.1);};
 const sfxDie=()=>{beep(400,.1,'square',.18);beep(200,.18,'square',.14,.1);beep(100,.3,'sawtooth',.14,.2);};
-const sfxCombo=()=>beep(660+combo*40,.06,'sine',.1);
+const sfxCombo=(c)=>beep(660+(c||0)*40,.06,'sine',.1);
 const sfxWaveClear=()=>{beep(523,.1,'sine',.15);beep(659,.1,'sine',.15,.12);beep(784,.2,'sine',.18,.24);};
 
 let musicOn=false;
@@ -807,8 +808,8 @@ function drawStars(){
 // ══════════════════════════════════════════
 let state='lobby',gameMode='single',difficulty='normal',isHost=false;
 let score1=0,score2=0,hiScore=parseInt(localStorage.getItem('pbHi')||'0'),wave=0;
-let p1,p2,bullets,eBullets,enemies,boss,particles,drops,floaters;
-let eDir=1,eMoveTimer=0,eDropPending=false,eShootTimer=60;
+let p1,p2,bullets,enemyBullets,enemies,boss,particles,drops,floaters;
+let enemyDir=1,enemyMoveTimer=0,enemyDropPending=false,enemyShootTimer=60;
 let gamePaused=false,frameCount=0;
 let combo=0,comboTimer=0;
 let waveClearTimer=0;
@@ -850,9 +851,9 @@ function resetGame(){
   p2=gameMode==='single'
     ?{dead:true,invincible:0,lives:0,shield:0,rapid:0,triple:0,bombs:0,bombCD:0,id:'p2',x:-999,y:0,w:0,h:0,col:'#ff88ff'}
     :mkPlayer(2*W/3-24,'#ff88ff',SHIP2,'p2');
-  bullets=[];eBullets=[];enemies=[];boss=null;particles=[];drops=[];floaters=[];
+  bullets=[];enemyBullets=[];enemies=[];boss=null;particles=[];drops=[];floaters=[];
   wave=0;score1=0;score2=0;combo=0;comboTimer=0;waveClearTimer=0;
-  eDir=1;eMoveTimer=0;eDropPending=false;eShootTimer=60;
+  enemyDir=1;enemyMoveTimer=0;enemyDropPending=false;enemyShootTimer=60;
   gamePaused=false;pauseOverlay.classList.remove('show');
   spawnWave();updateHUD();
   if(!muted)startMusic();
@@ -864,7 +865,7 @@ function resetGame(){
 function spawnWave(){
   wave++;
   document.getElementById('wavenum').textContent=wave;
-  enemies=[];boss=null;eDir=1;eDropPending=false;eMoveTimer=0;
+  enemies=[];boss=null;enemyDir=1;enemyDropPending=false;enemyMoveTimer=0;
   if(wave%5===0){spawnBoss();return;}
   const rows=Math.min(2+Math.floor(wave/2),4),cols=Math.min(5+wave,9);
   const sx=Math.floor((W-60)/cols),form=wave%4;
@@ -1026,7 +1027,7 @@ function killBoss(scorer){
   spawnParts(boss.x+80,boss.y+52,boss.col,80);
   spawnParts(boss.x+40,boss.y+30,'#ffcc00',40);
   spawnParts(boss.x+120,boss.y+30,'#00aaff',40);
-  const pts=500+wave*50;
+  const pts=Math.round((500+wave*50)*diffMult());
   if(scorer.id==='p1')score1+=pts;else score2+=pts;
   hiScore=Math.max(hiScore,score1+score2);
   boss=null;updateHUD();
@@ -1118,11 +1119,19 @@ function onData(d){
   else if(d.t==='ping'){trySend({t:'pong'});}
 }
 
-function trySend(data){try{if(conn&&conn.open)conn.send(data);}catch(e){}}
+function trySend(data){try{if(conn&&conn.open)conn.send(data);}catch(e){console.warn('send failed',e);}}
 
+let reconnectTimer=0;
 function onDisconn(){
   onlineOK=false;
-  if(state==='playing'){state='gameover';stopMusic();showGameOverMsg('DISCONNECTED','OPPONENT LEFT','','');}
+  if(state==='playing'){
+    document.getElementById('host-status').textContent='CONNECTION LOST — RECONNECTING...';
+    reconnectTimer=300;
+    const iv=setInterval(()=>{
+      if(conn&&conn.open){clearInterval(iv);onlineOK=true;document.getElementById('host-status').textContent='RECONNECTED!';}
+      else{reconnectTimer--;if(reconnectTimer<=0){clearInterval(iv);state='gameover';stopMusic();showGameOverMsg('DISCONNECTED','OPPONENT LEFT','','');}}
+    },100);
+  }
 }
 
 function disconnectOnline(){
@@ -1140,11 +1149,11 @@ function applySnapshot(d){
   if(!d.d2){p2.lives=d.l2;p2.shield=d.s2;p2.rapid=d.r2;p2.triple=d.tr2||0;p2.bombs=d.b2;}
   if(d.d2)p2.dead=true;
   // Sync environment
-  if(d.e&&enemies){for(let i=0;i<Math.min(d.e.length,enemies.length);i++){enemies[i].x=d.e[i].x;enemies[i].y=d.e[i].y;enemies[i].hp=d.e[i].h;}}
+  if(d.e&&Array.isArray(d.e)&&enemies){for(let i=0;i<Math.min(d.e.length,enemies.length);i++){enemies[i].x=d.e[i].x;enemies[i].y=d.e[i].y;enemies[i].hp=d.e[i].h;}}
   if(d.bh>0&&boss){boss.hp=d.bh;boss.x=d.bx;}
   else if(d.bh<=0&&boss)boss=null;
-  if(d.dr)drops=d.dr.map(x=>({x:x.x,y:x.y,type:x.t,w:16,h:16,vy:1.5,anim:0}));
-  if(d.eb)eBullets=d.eb.map(x=>({x:x.x,y:x.y,w:4,h:10,vy:5,col:'#ff2244',vx:x.vx||0}));
+  if(d.dr&&Array.isArray(d.dr))drops=d.dr.map(x=>({x:x.x,y:x.y,type:x.t,w:16,h:16,vy:1.5,anim:0}));
+  if(d.eb&&Array.isArray(d.eb))enemyBullets=d.eb.map(x=>({x:x.x,y:x.y,w:4,h:10,vy:5,col:'#ff2244',vx:x.vx||0}));
   if(d.wv&&d.wv!==wave){wave=d.wv;document.getElementById('wavenum').textContent=wave;}
   if(d.sc1!==undefined)score1=d.sc1;
   if(d.sc2!==undefined)score2=d.sc2;
@@ -1227,14 +1236,16 @@ function update(){
   // Boss
   if(boss){
     boss.x+=boss.dir*boss.speed;
-    if(boss.x<0||boss.x+boss.w>W){boss.dir*=-1;boss.y+=8;}
+    if(boss.x<0||boss.x+boss.w>W){boss.dir*=-1;boss.y+=8;boss.y=Math.min(boss.y,160);}
     boss.shootTimer--;
     if(boss.shootTimer<=0){
-      boss.shootTimer=Math.max(14,~~(40-wave*2));boss.phase=(boss.phase+1)%3;
+      const dm=diffMult();
+      boss.shootTimer=Math.max(14,~~((40-wave*2)/dm));boss.phase=(boss.phase+1)%3;
       const cx=boss.x+boss.w/2,cy=boss.y+boss.h;
-      if(boss.phase===0)[-1,0,1].forEach(d=>eBullets.push({x:cx-2+d*20,y:cy,w:6,h:10,vx:d*2,vy:5,col:'#ff2244'}));
-      else if(boss.phase===1)for(let a=-2;a<=2;a++)eBullets.push({x:cx,y:cy,w:5,h:10,vx:a*1.5,vy:5,col:'#ff8800'});
-      else [p1,p2].forEach(pl=>{if(pl.dead)return;const dx=pl.x+pl.w/2-cx,dy=pl.y-cy,l=Math.sqrt(dx*dx+dy*dy)||1;eBullets.push({x:cx,y:cy,w:6,h:10,vx:dx/l*4,vy:dy/l*4,col:'#ff44ff'});});
+      const spread=dm>1?3:2;
+      if(boss.phase===0){const r=dm>1?[-2,-1,0,1,2]:[-1,0,1];r.forEach(d=>enemyBullets.push({x:cx-2+d*16,y:cy,w:6,h:10,vx:d*(dm>1?1.8:2),vy:5*dm,col:'#ff2244'}));}
+      else if(boss.phase===1){const r=dm>1?3:2;for(let a=-r;a<=r;a++)enemyBullets.push({x:cx,y:cy,w:5,h:10,vx:a*(dm>1?1.2:1.5),vy:5*dm,col:'#ff8800'});}
+      else [p1,p2].forEach(pl=>{if(pl.dead)return;const dx=pl.x+pl.w/2-cx,dy=pl.y-cy,l=Math.sqrt(dx*dx+dy*dy)||1;enemyBullets.push({x:cx,y:cy,w:6,h:10,vx:dx/l*(3+dm),vy:dy/l*(3+dm),col:'#ff44ff'});});
     }
     if(boss.hitFlash>0)boss.hitFlash--;
     for(let bi=bullets.length-1;bi>=0;bi--){
@@ -1273,31 +1284,31 @@ function update(){
       }
     }
     // Formation move
-    eMoveTimer++;
+    enemyMoveTimer++;
     const spd=Math.max(2,~~((18-enemies.filter(e=>!e.diving).length*.5)/diffMult()));
-    if(eMoveTimer>=spd){
-      eMoveTimer=0;
+    if(enemyMoveTimer>=spd){
+      enemyMoveTimer=0;
       const grid=enemies.filter(e=>!e.diving);
-      if(eDropPending){grid.forEach(e=>{e.y+=14;});eDir*=-1;eDropPending=false;}
+      if(enemyDropPending){grid.forEach(e=>{e.y+=14;});enemyDir*=-1;enemyDropPending=false;}
       else{
-        grid.forEach(e=>{e.x+=eDir*10;});
+        grid.forEach(e=>{e.x+=enemyDir*10;});
         const mn=Math.min(...grid.map(e=>e.x)),mx=Math.max(...grid.map(e=>e.x+e.w));
-        if(mx>W-4||mn<4)eDropPending=true;
+        if(mx>W-4||mn<4)enemyDropPending=true;
       }
     }
     // Shoot
-    eShootTimer--;
-    if(eShootTimer<=0&&enemies.length){
-      eShootTimer=Math.max(14,~~((80-wave*4)/diffMult()))+~~(rand()*20);
+    enemyShootTimer--;
+    if(enemyShootTimer<=0&&enemies.length){
+      enemyShootTimer=Math.max(14,~~((80-wave*4)/diffMult()))+~~(rand()*20);
       const sh=enemies[~~(Math.random()*enemies.length)];
-      eBullets.push({x:sh.x+sh.w/2-2,y:sh.y+sh.h,w:4,h:10,vx:0,vy:(5+wave*.3)*diffMult(),col:'#ff2244'});
+      enemyBullets.push({x:sh.x+sh.w/2-2,y:sh.y+sh.h,w:4,h:10,vx:0,vy:(5+wave*.3)*diffMult(),col:'#ff2244'});
     }
     // Reached bottom
     if(enemies.some(e=>!e.diving&&e.y+e.h>H-20)){state='gameover';stopMusic();showGameOver();return;}
   }
 
   // Enemy bullets move + hit
-  eBullets=eBullets.filter(b=>{
+  enemyBullets=enemyBullets.filter(b=>{
     b.x+=b.vx||0;b.y+=b.vy||(5+wave*.3);
     [p1,p2].forEach(pl=>{if(pl.dead||b.gone)return;if(b.x<pl.x+pl.w&&b.x+b.w>pl.x&&b.y<pl.y+pl.h&&b.y+b.h>pl.y){hitPlayer(pl);b.gone=true;}});
     return !b.gone&&b.y<H+20&&b.x>-20&&b.x<W+20;
@@ -1314,7 +1325,7 @@ function update(){
           spawnParts(e.x+20,e.y+16,e.col);spawnDrop(e.x+20,e.y+16);
           const scorer=b.owner==='p1'?p1:p2;
           // Combo
-          combo++;comboTimer=120;sfxCombo();
+          combo++;comboTimer=120;sfxCombo(combo);
           const mult=combo>=5?3:combo>=3?2:1;
           const pts=(e.pts)*mult;
           if(b.owner==='p1')score1+=pts;else score2+=pts;
@@ -1330,8 +1341,8 @@ function update(){
 
   // Wave clear
   if(!boss&&enemies.length===0){
-    sfxWaveClear();
     if(state==='playing'){
+      sfxWaveClear();
       waveBanner.textContent='WAVE '+(wave-1)+' CLEAR!';
       waveBanner.style.display='block';waveClearTimer=90;
     }
@@ -1353,7 +1364,7 @@ function update(){
       l2:p2.lives,d2:p2.dead?1:0,s2:p2.shield,r2:p2.rapid,tr2:p2.triple,b2:p2.bombs,
       e:enemies.map(e=>({x:e.x,y:e.y,h:e.hp})),
       bx:boss?boss.x:0,bh:boss?boss.hp:0,
-      eb:eBullets.map(b=>({x:b.x,y:b.y,vx:b.vx||0})),
+      eb:enemyBullets.map(b=>({x:b.x,y:b.y,vx:b.vx||0})),
       dr:drops.map(d=>({x:d.x,y:d.y,t:d.type})),
       wv:wave,sc1:score1,sc2:score2
     });
@@ -1372,7 +1383,7 @@ function drawPlayer(pl){
     ctx.globalAlpha=1;ctx.lineWidth=1;
   }
   if(!pl.ship)return;
-  drawSprite(pl.ship,pl.x,pl.y,pl.col,pl.id==='p2'?'#ff88ff':'#ff4466');
+  drawSprite(pl.ship,pl.x,pl.y,pl.col,pl.col,pl.id==='p2'?'#00ccff':'#ffcc00');
   // Engine flame
   const fx=pl.x+14+Math.random()*20;
   ctx.fillStyle=Math.random()>.5?'#ff8800':'#ffff00';
@@ -1380,6 +1391,7 @@ function drawPlayer(pl){
 }
 
 function draw(){
+  if(wrapEl.style.display==='none')return;
   // Screen shake offset
   const sx=screenShakeTimer>0?~~(Math.random()*screenShakeTimer*1.5)-~~(screenShakeTimer*.75):0;
   const sy=screenShakeTimer>0?~~(Math.random()*screenShakeTimer)-~~(screenShakeTimer*.5):0;
@@ -1395,7 +1407,7 @@ function draw(){
     ctx.globalAlpha=boss.hitFlash>0&&~~(boss.hitFlash/2)%2?.35:1;
     drawSprite(BOSS,boss.x,boss.y,boss.col,boss.a1,boss.a2,2);
     ctx.globalAlpha=1;
-    const bx=boss.x,by=boss.y-14,bw=boss.w*2;
+    const bx=boss.x,by=boss.y-14,bw=boss.w;
     ctx.fillStyle='#1a0000';ctx.fillRect(bx,by,bw,8);
     ctx.fillStyle='#ff2244';ctx.fillRect(bx,by,bw*(boss.hp/boss.maxHp),8);
     ctx.strokeStyle='#ff4466';ctx.lineWidth=1;ctx.strokeRect(bx,by,bw,8);
@@ -1419,7 +1431,7 @@ function draw(){
   });
 
   // Enemy bullets
-  eBullets.forEach(b=>{ctx.fillStyle=b.col||'#ff2244';ctx.fillRect(~~b.x,~~b.y,b.w,b.h);});
+  enemyBullets.forEach(b=>{ctx.fillStyle=b.col||'#ff2244';ctx.fillRect(~~b.x,~~b.y,b.w,b.h);});
 
   // Drops
   drops.forEach(d=>{
@@ -1526,6 +1538,7 @@ function showGameOverMsg(title,w,scores,hi){
 // ══════════════════════════════════════════
 function showLobbyMenu(){
   lobbyEl.style.display='flex';
+  lobbyEl.classList.add('no-anim');
   document.getElementById('menu-main').style.display='flex';
   document.getElementById('menu-host').style.display='none';
   document.getElementById('menu-join').style.display='none';
@@ -1534,6 +1547,9 @@ function showLobbyMenu(){
   joystickZone.classList.remove('active');
   chatEl.classList.remove('open');
   document.getElementById('btn-chat').style.display='none';
+  document.body.classList.remove('game-active');
+  // Re-enable entry animation next time
+  setTimeout(()=>lobbyEl.classList.remove('no-anim'),50);
   renderLB();
 }
 
@@ -1547,9 +1563,8 @@ function startGame(){
   overlayEl.innerHTML='';
   if(gamePaused){gamePaused=false;pauseOverlay.classList.remove('show');}
   waveBanner.style.display='none';waveClearTimer=0;
-  // Full reset on retry — always start fresh
-  resetGame();
   state='playing';
+  document.body.classList.add('game-active');
   updateHUD();
 }
 
@@ -1632,10 +1647,11 @@ function setupMobile(){
 // ══════════════════════════════════════════
 document.addEventListener('keydown',e=>{
   keys[e.key]=true;
-  if(e.key===' ')e.preventDefault();
+  if([' ','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))e.preventDefault();
   if((e.key===' '||e.key==='Enter')&&(state==='title'||state==='gameover'))startGame();
   if((e.key==='p'||e.key==='P'||e.key==='Escape')&&state==='playing'){
     gamePaused=!gamePaused;pauseOverlay.classList.toggle('show',gamePaused);e.preventDefault();
+    if(gamePaused)stopMusic();else if(!muted)startMusic();
   }
   if(e.key==='Enter'&&gameMode==='online'&&state==='playing'){
     chatEl.classList.toggle('open');if(chatEl.classList.contains('open'))chatInput.focus();else chatInput.blur();
@@ -1655,10 +1671,8 @@ canvas.addEventListener('touchstart',e=>{
 // ══════════════════════════════════════════
 document.getElementById('btn-sound').addEventListener('click',toggleSound);
 document.getElementById('btn-back-menu').addEventListener('click',()=>{
-  if(confirm('Return to menu? Current game will end.')){
-    state='lobby';stopMusic();overlayEl.style.display='none';
-    lobbyEl.classList.add('no-anim');showLobbyMenu();disconnectOnline();
-  }
+  state='lobby';stopMusic();overlayEl.style.display='none';
+  lobbyEl.classList.add('no-anim');showLobbyMenu();disconnectOnline();
 });
 document.getElementById('btn-fullscreen').addEventListener('click',()=>{
   if(document.fullscreenElement)document.exitFullscreen();
@@ -1670,7 +1684,7 @@ document.getElementById('btn-chat').addEventListener('click',()=>{
 });
 chatInput.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&chatInput.value.trim()){
-    const txt=chatInput.value.trim();
+    const txt=chatInput.value.trim().substring(0,200);
     trySend({t:'msg',txt});addChatMsg(p1Name,txt);chatInput.value='';
   }
   e.stopPropagation();
@@ -1690,23 +1704,28 @@ function addChatMsg(who,txt){
     document.getElementById('btn-local2').onmouseout=function(){this.style.background='linear-gradient(180deg,#001222,#000a14)';};
     document.getElementById('btn-single').onclick=()=>startLocalGame('single');
 document.getElementById('btn-local2').onclick=()=>startLocalGame('local2');
+function peerReady(){return typeof Peer!=='undefined';}
 document.getElementById('btn-host').onclick=()=>{
+  if(!peerReady()){document.getElementById('host-status').textContent='PEERJS NOT LOADED — CHECK INTERNET';return;}
   document.getElementById('menu-main').style.display='none';
   document.getElementById('menu-host').style.display='flex';
   gameMode='online';isHost=true;
   createRoom();
 };
 document.getElementById('btn-join').onclick=()=>{
+  if(!peerReady()){document.getElementById('join-status').textContent='PEERJS NOT LOADED — CHECK INTERNET';return;}
   document.getElementById('menu-main').style.display='none';
   document.getElementById('menu-join').style.display='flex';
   document.getElementById('join-status').textContent='';
   document.getElementById('room-input').value='';
   document.getElementById('room-input').focus();
 };
-document.getElementById('btn-connect').onclick=()=>{
+function handleConnect(){
   const code=document.getElementById('room-input').value.trim().toUpperCase();
   if(code)joinRoom(code);else document.getElementById('join-status').textContent='ENTER CODE';
-};
+}
+document.getElementById('btn-connect').onclick=handleConnect;
+document.getElementById('btn-connect').addEventListener('touchend',e=>{e.preventDefault();handleConnect();});
 document.getElementById('room-input').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('btn-connect').click();});
 document.getElementById('room-input').addEventListener('input',function(){this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});
 document.getElementById('room-code').addEventListener('click',()=>{
@@ -1736,8 +1755,14 @@ document.querySelectorAll('.dbtn').forEach(btn=>{
 // ══════════════════════════════════════════
 //  LOOP + INIT
 // ══════════════════════════════════════════
-function loop(){update();draw();requestAnimationFrame(loop);}
+let lastFrameTime=0;
+function loop(t){
+  if(t-lastFrameTime<16)return requestAnimationFrame(loop);
+  lastFrameTime=t;
+  update();draw();requestAnimationFrame(loop);
+}
 setupMobile();showLobbyMenu();loop();
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 
 // ── R3: Canvas responsive scaling ──
 // Canvas internal resolution stays 520x540 (pixel-perfect)

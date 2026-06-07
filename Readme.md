@@ -80,6 +80,8 @@ A retro pixel-art arcade space shooter with online multiplayer — built in pure
 ```
 pixel-blaster-dx/
 ├── index.html    ← entire game (single file, ~1800 lines)
+manifest.json ← PWA manifest
+sw.js         ← Service worker for offline support
 └── README.md
 ```
 
