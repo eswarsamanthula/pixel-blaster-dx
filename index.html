@@ -288,7 +288,7 @@ canvas{
 #overlay h1{font-size:clamp(16px,4vw,26px);color:var(--green);text-shadow:0 0 20px var(--green),4px 4px 0 var(--green-dark);animation:bglow 1.5s ease-in-out infinite alternate;text-align:center;line-height:1.5;}
 .o-hisc{font-size:9px;color:var(--gold);text-shadow:0 0 8px var(--gold);}
 .o-sub{font-size:9px;color:var(--purple);text-shadow:0 0 8px var(--purple);}
-.o-blink{font-size:8px;color:var(--gold);animation:blink 1s step-start infinite;}
+.o-blink{font-size:8px;color:var(--gold);animation:blink 1s step-start infinite;pointer-events:auto;cursor:pointer;}
 .o-hint{font-size:7px;color:#334444;text-align:center;line-height:2;}
 .o-back{font-size:7px;color:#446644;cursor:pointer;text-decoration:underline;margin-top:2px;pointer-events:auto;}
 .o-back:hover{color:var(--green);}
@@ -1983,9 +1983,11 @@ function showGameOverMsg(title,w,scores,hi){
     ${scores?`<div class="o-hisc">${scores}</div>`:''}
     ${hi?`<div class="o-hisc">${hi}</div>`:''}
     ${reviveAvailable?`<div class="o-blink" id="btn-revive" style="color:var(--green);text-shadow:0 0 10px var(--green);">❤️ REVIVE? 🪙 50</div>`:''}
-    <div class="o-blink">SPACE / TAP TO RETRY</div>
+    <div class="o-blink" id="btn-retry" style="cursor:pointer;">TAP / CLICK TO RETRY</div>
     <div class="o-back" id="btn-to-menu">← MENU</div>
   `;
+  const retryBtn=document.getElementById('btn-retry');
+  if(retryBtn)retryBtn.onclick=()=>{startGame();};
   const reviveBtn=document.getElementById('btn-revive');
   if(reviveBtn)reviveBtn.onclick=(e)=>{e.stopPropagation();tryRevive()&&overlayEl.classList.remove('gameover-anim');};
   document.getElementById('btn-to-menu').onclick=()=>{state='lobby';overlayEl.style.display='none';lobbyEl.classList.add('no-anim');showLobbyMenu();disconnectOnline();};
@@ -2118,6 +2120,9 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&chatEl.classList.contains('open')){chatEl.classList.remove('open');chatInput.blur();}
 });
 document.addEventListener('keyup',e=>{keys[e.key]=false;});
+
+// Canvas click (passes through overlay with pointer-events:none)
+canvas.addEventListener('click',()=>{if(state==='title'||state==='gameover')startGame();});
 
 // Canvas touch fallback (non-joystick area)
 canvas.addEventListener('touchstart',e=>{
