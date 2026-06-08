@@ -81,6 +81,40 @@ body{
 @keyframes fadeTip{from{opacity:.5;}to{opacity:1;}}
 .splash-prompt{font-size:7px;color:var(--gold);letter-spacing:1px;animation:blink 1s step-start infinite;cursor:pointer;}
 
+/* ── TUTORIAL OVERLAY ── */
+#tutorial{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;animation:fadeIn .3s ease-out both;}
+.tut-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);}
+.tut-card{
+  position:relative;z-index:1;width:min(420px,88vw);
+  background:linear-gradient(160deg,rgba(8,18,8,.98),rgba(4,8,4,.98));
+  border:1px solid var(--green);border-radius:6px;padding:20px 24px;
+  box-shadow:0 0 0 1px rgba(0,255,136,.08),0 0 60px rgba(0,255,136,.06);
+  animation:tutIn .35s cubic-bezier(.2,1.3,.4,1) both;
+}
+@keyframes tutIn{from{opacity:0;transform:scale(.9) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.tut-slide{display:flex;flex-direction:column;gap:14px;}
+.tut-title{font-size:16px;color:var(--gold);text-shadow:0 0 16px var(--gold-glow);letter-spacing:2px;text-align:center;}
+.tut-body{font-size:8px;color:var(--text-body);line-height:1.9;letter-spacing:.5px;}
+.tut-body .hl{color:var(--gold);}
+.tut-body .key{
+  display:inline-block;padding:2px 6px;border:1px solid var(--border);border-radius:2px;
+  font-size:7px;color:var(--green);background:rgba(0,20,0,.5);margin:1px;white-space:nowrap;
+}
+.tut-body .big{font-size:18px;margin:2px;}
+.tut-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border-dim);padding-top:10px;}
+.tut-dots{display:flex;gap:6px;}
+.tut-dot{width:8px;height:8px;border-radius:50%;border:1px solid var(--border-dim);cursor:pointer;transition:all .15s;}
+.tut-dot.active{border-color:var(--gold);background:var(--gold);box-shadow:0 0 6px var(--gold-glow);}
+.tut-btn{
+  font-size:8px;color:var(--text-dim);cursor:pointer;padding:8px 14px;
+  border:1px solid var(--border-dim);border-radius:3px;transition:all .12s;letter-spacing:1px;
+}
+.tut-btn:hover{border-color:var(--green);color:var(--green);}
+.tut-btn.gold{border-color:var(--gold);color:var(--gold);background:rgba(255,204,0,.06);}
+.tut-btn.gold:hover{border-color:var(--gold);color:var(--gold);background:rgba(255,204,0,.12);box-shadow:0 0 12px var(--gold-glow);}
+.tut-skip{font-size:7px;color:var(--text-muted);cursor:pointer;text-decoration:underline;}
+.tut-skip:hover{color:var(--text-dim);}
+
 /* ── CRT SCANLINE — on canvas wrapper only, not full body ── */
 body.game-active::after{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
@@ -1071,6 +1105,27 @@ body.has-controls #wrap canvas{
     <div class="splash-bar-track"><div class="splash-bar-fill" id="splash-fill"></div></div>
     <div class="splash-tip" id="splash-tip">INITIALIZING...</div>
     <div class="splash-prompt" id="splash-prompt" style="display:none;">CLICK ANYWHERE TO CONTINUE</div>
+  </div>
+</div>
+
+<!-- ══ TUTORIAL OVERLAY ══ -->
+<div id="tutorial" style="display:none;">
+  <div class="tut-backdrop"></div>
+  <div class="tut-card" id="tut-card">
+    <div class="tut-slide" id="tut-slide">
+      <div class="tut-title" id="tut-title">WELCOME</div>
+      <div class="tut-body" id="tut-body"></div>
+      <div class="tut-footer">
+        <div class="tut-dots" id="tut-dots"></div>
+        <div style="display:flex;gap:8px;">
+          <span class="tut-btn" id="tut-prev" style="display:none;">← BACK</span>
+          <span class="tut-btn gold" id="tut-next">NEXT →</span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;padding-top:8px;border-top:1px solid var(--border-dim);">
+      <span class="tut-skip" id="tut-skip">DON'T SHOW AGAIN</span>
+    </div>
   </div>
 </div>
 <canvas id="lobby-canvas" style="position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;image-rendering:pixelated;"></canvas>
@@ -3469,7 +3524,7 @@ function advanceSplash(pct,tip){
     setTimeout(()=>{
       splashDismissed=true;
       splashEl.classList.add('hide');
-      showLobbyMenu();// Start game systems after fade
+      showLobbyMenu();setTimeout(showTutorial,100);
       setTimeout(()=>splashEl.classList.add('hidden'),550);
     },800);
     // Show prompt
@@ -3479,7 +3534,7 @@ function advanceSplash(pct,tip){
       if(!splashDismissed){
         splashDismissed=true;
         splashEl.classList.add('hide');
-        showLobbyMenu();
+        showLobbyMenu();setTimeout(showTutorial,100);
         setTimeout(()=>splashEl.classList.add('hidden'),550);
       }
     };
@@ -3507,6 +3562,88 @@ setTimeout(()=>{advanceSplash(15,'LOADING SETTINGS...');
   mq.addEventListener('change',apply);apply();
 })();
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// ── TUTORIAL ──
+const TUTORIAL_SLIDES=[
+  {title:'🎮 CONTROLS',body:`
+    <div style="text-align:center;margin-bottom:4px;"><span class="big">⌨</span> <span class="big">🎮</span></div>
+    <b>KEYBOARD</b><br>
+    <span class="key">← →</span> MOVE &nbsp;<span class="key">SPACE</span> SHOOT &nbsp;<span class="key">X</span> BOMB<br>
+    <span class="key">Q</span> SPECIAL ABILITY &nbsp;<span class="key">P</span> PAUSE<br><br>
+    <b>MULTIPLAYER (P2)</b><br>
+    <span class="key">A D</span> MOVE &nbsp;<span class="key">W</span> SHOOT &nbsp;<span class="key">E</span> BOMB<br><br>
+    <b>MOBILE</b><br>
+    DRAG LEFT/RIGHT TO MOVE · TAP TO SHOOT<br>
+    POWER-UPS DROP DURING BATTLE — COLLECT THEM!
+  `},
+  {title:'⚡ POWER-UPS',body:`
+    <div style="text-align:center;">
+      <span class="emoji">🛡</span><span class="emoji">⚡</span><span class="emoji">🔱</span><span class="emoji">💣</span>
+      <span class="emoji">❤️</span><span class="emoji">⇶</span><span class="emoji">🧲</span><span class="emoji">🔥</span>
+    </div>
+    <span class="hl">SHIELD</span> — BLOCKS 1 HIT &nbsp; <span class="hl">RAPID</span> — FAST FIRE<br>
+    <span class="hl">TRIPLE</span> — 3-WAY SPREAD &nbsp; <span class="hl">BOMB</span> — SCREEN CLEAR<br>
+    <span class="hl">HEAL</span> — RESTORE 1 LIFE &nbsp; <span class="hl">PIERCE</span> — BULLETS GO THROUGH<br>
+    <span class="hl">MAGNET</span> — AUTO-COLLECT &nbsp; <span class="hl">OVERCHARGE</span> — 2X DAMAGE<br><br>
+    BUY THE SAME POWER TWICE IN ONE SHOP VISIT FOR AN <span class="hl">UPGRADED VERSION</span>!
+  `},
+  {title:'🪙 SHOP & COINS',body:`
+    <div style="display:flex;justify-content:center;gap:20px;margin:4px 0;">
+      <span style="font-size:22px;">🪙</span><span style="font-size:22px;">🏪</span><span style="font-size:22px;">🚀</span>
+    </div>
+    <span class="hl">COINS</span> drop from enemies and bosses. Collect them!<br><br>
+    <span class="hl">BETWEEN WAVES</span>, the SHOP opens. Buy power-ups to survive longer.<br>
+    First pick each visit is <span class="hl">FREE</span>. Prices increase with each purchase.<br><br>
+    <span class="hl">PERMANENT UPGRADES</span> are available in the lobby:<br>
+    🚀 ENGINE — FASTER SHIP &nbsp; 🛡️ ARMOR — EXTRA LIVES<br>
+    💣 ARSENAL — START WITH BOMBS &nbsp; 🍀 FORTUNE — MORE COINS
+  `},
+  {title:'🌟 GAME MODES',body:`
+    <div style="display:flex;justify-content:center;gap:12px;margin:4px 0;">
+      <span style="font-size:18px;">▶</span><span style="font-size:18px;">👥</span><span style="font-size:18px;">♾</span><span style="font-size:18px;">⏱</span><span style="font-size:18px;">📅</span>
+    </div>
+    <span class="hl">1 PLAYER</span> — CLASSIC ARCADE. 8 WAVES + BOSS.<br>
+    <span class="hl">2 PLAYERS</span> — CO-OP LOCAL. SHARE KEYBOARD.<br>
+    <span class="hl">4 PLAYERS</span> — MAYHEM. P1+P2+UP TO 4 REMOTE.<br>
+    <span class="hl">ENDLESS</span> — SURVIVE AS LONG AS YOU CAN.<br>
+    <span class="hl">TIME ATTACK</span> — SCORE BIG BEFORE THE CLOCK RUNS OUT.<br>
+    <span class="hl">DAILY</span> — SAME SEED FOR EVERYONE. COMPETE!<br><br>
+    <span class="hl">DIFFICULTY</span> affects enemy speed, HP, and lives.<br>
+    EASY = 5 LIVES · INSANE = 1 LIFE + 1.8X SCORE MULTIPLIER
+  `},
+];
+let tutSlide=0;
+function showTutorial(){
+  if(localStorage.getItem('pbTutDone'))return;
+  const el=document.getElementById('tutorial');if(!el)return;
+  el.style.display='flex';
+  renderTutSlide(0);
+}
+function renderTutSlide(i){
+  tutSlide=i;
+  const slide=TUTORIAL_SLIDES[i];
+  document.getElementById('tut-title').textContent=slide.title;
+  document.getElementById('tut-body').innerHTML=slide.body;
+  // Dots
+  const dotsEl=document.getElementById('tut-dots');
+  dotsEl.innerHTML=TUTORIAL_SLIDES.map((_,j)=>`<span class="tut-dot${j===i?' active':''}" data-idx="${j}"></span>`).join('');
+  dotsEl.querySelectorAll('.tut-dot').forEach(d=>d.addEventListener('click',()=>renderTutSlide(parseInt(d.dataset.idx))));
+  // Buttons
+  document.getElementById('tut-prev').style.display=i===0?'none':'inline';
+  const nextBtn=document.getElementById('tut-next');
+  nextBtn.textContent=i===TUTORIAL_SLIDES.length-1?'PLAY ▸':'NEXT →';
+  // Close tutorial on last slide
+  nextBtn.onclick=()=>{
+    if(i>=TUTORIAL_SLIDES.length-1)closeTutorial();
+    else renderTutSlide(i+1);
+  };
+  document.getElementById('tut-prev').onclick=()=>renderTutSlide(Math.max(0,i-1));
+}
+function closeTutorial(){
+  document.getElementById('tutorial').style.display='none';
+  localStorage.setItem('pbTutDone','1');
+}
+document.getElementById('tut-skip').onclick=closeTutorial;
 
 // ── R3: Canvas responsive scaling ──
 // Canvas internal resolution stays 520x540 (pixel-perfect)
