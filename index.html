@@ -65,11 +65,9 @@ body.game-active::after{
 
 /* ── LOBBY ── */
 #lobby{
-  position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:var(--bg);z-index:100;gap:12px;padding:20px;
-  overflow-y:auto;overflow-x:hidden;
-  /* Smooth scroll on iOS */
-  -webkit-overflow-scrolling:touch;
+  position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;
+  background:var(--bg);z-index:100;gap:4px;padding:8px 10px;
+  overflow-y:hidden;overflow-x:hidden;
   /* atmosphere grid */
   background-image:
     linear-gradient(rgba(0,255,136,.025) 1px,transparent 1px),
@@ -79,29 +77,28 @@ body.game-active::after{
 /* Lobby load-in animation — first load only */
 #lobby:not(.no-anim)>*{animation:lobbyIn .5s ease-out both;}
 #lobby:not(.no-anim)>*:nth-child(1){animation-delay:.05s;}
-#lobby:not(.no-anim)>*:nth-child(2){animation-delay:.15s;}
-#lobby:not(.no-anim)>*:nth-child(3){animation-delay:.25s;}
-@keyframes lobbyIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+#lobby:not(.no-anim)>*:nth-child(2){animation-delay:.1s;}
+#lobby:not(.no-anim)>*:nth-child(3){animation-delay:.15s;}
+@keyframes lobbyIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
 #lobby h1{
-  font-size:clamp(20px,5vw,32px);color:var(--green);
-  text-shadow:0 0 24px var(--green),0 0 60px rgba(0,255,136,.3),4px 4px 0 var(--green-dark);
-  text-align:center;line-height:1.6;margin-bottom:4px;
+  font-size:clamp(16px,2.5vw,22px);color:var(--green);
+  text-shadow:0 0 20px var(--green),0 0 40px rgba(0,255,136,.25),3px 3px 0 var(--green-dark);
+  text-align:center;line-height:1.3;margin:0;
   animation:bglow 1.5s ease-in-out infinite alternate;
   position:relative;
 }
 /* Decorative pixel underline on title */
 #lobby h1::after{
-  content:'▸ ■ ■ ■ ◂';display:block;font-size:8px;
-  color:var(--green-dim);letter-spacing:4px;text-shadow:none;
-  margin-top:8px;animation:none;opacity:.6;
+  content:'▸ ■ ■ ■ ◂';display:block;font-size:5px;
+  color:var(--green-dim);letter-spacing:2px;text-shadow:none;
+  margin-top:2px;animation:none;opacity:.4;
 }
 
 .lobby-card{
   background:linear-gradient(160deg,rgba(13,24,13,.98),rgba(5,8,5,.98));
-  border:1px solid var(--border);border-radius:4px;
-  padding:14px 18px;width:min(320px,92vw);
-  display:flex;flex-direction:column;gap:10px;
+  border:1px solid var(--border);border-radius:3px;
+  padding:6px 10px;width:100%;display:flex;flex-direction:column;gap:4px;
   box-shadow:var(--card-shadow);
   position:relative;overflow:hidden;
 }
@@ -112,35 +109,35 @@ body.game-active::after{
   opacity:.4;
 }
 .lobby-card h2{
-  font-size:8px;color:var(--green);
-  text-shadow:0 0 8px rgba(0,255,136,.4);
+  font-size:6px;color:var(--green);
+  text-shadow:0 0 4px rgba(0,255,136,.3);
   border-bottom:1px solid var(--border-dim);
-  padding-bottom:6px;margin-bottom:2px;letter-spacing:1px;
+  padding-bottom:3px;margin-bottom:1px;letter-spacing:1px;
 }
 .lbtn{
-  font-family:'Press Start 2P',monospace;font-size:9px;padding:14px 16px;
+  font-family:'Press Start 2P',monospace;font-size:7px;padding:6px 10px;
   border:1px solid var(--green);background:linear-gradient(180deg,rgba(0,40,0,.9),rgba(0,20,0,.9));
-  color:var(--green);cursor:pointer;border-radius:3px;text-align:center;
-  transition:transform .08s,box-shadow .08s,background .08s;
+  color:var(--green);cursor:pointer;border-radius:2px;text-align:center;
+  transition:transform .06s,box-shadow .06s,background .06s;
   width:100%;letter-spacing:1px;position:relative;overflow:hidden;
 }
 .lbtn::before{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(0,255,136,.08),transparent 60%);
+  background:linear-gradient(180deg,rgba(0,255,136,.06),transparent 60%);
   pointer-events:none;
 }
 /* Pixel corner accents */
 .lbtn::after{
-  content:'';position:absolute;top:3px;left:3px;right:3px;bottom:3px;
-  border-top:1px solid rgba(0,255,136,.15);border-left:1px solid rgba(0,255,136,.08);
+  content:'';position:absolute;top:2px;left:2px;right:2px;bottom:2px;
+  border-top:1px solid rgba(0,255,136,.1);border-left:1px solid rgba(0,255,136,.06);
   pointer-events:none;border-radius:1px;
 }
 .lbtn:hover{
-  background:linear-gradient(180deg,rgba(0,60,0,.95),rgba(0,30,0,.95));
-  box-shadow:0 0 20px var(--green-glow),inset 0 0 16px rgba(0,255,136,.06);
-  transform:translateY(-2px);border-color:var(--green);
+  background:linear-gradient(180deg,rgba(0,50,0,.95),rgba(0,25,0,.95));
+  box-shadow:0 0 14px var(--green-glow),inset 0 0 10px rgba(0,255,136,.04);
+  transform:translateY(-1px);border-color:var(--green);
 }
-.lbtn:active{transform:translateY(1px);box-shadow:0 0 8px var(--green-glow);}
+.lbtn:active{transform:translateY(1px);box-shadow:0 0 6px var(--green-glow);}
 .lbtn.red{border-color:var(--red);color:var(--red);background:linear-gradient(180deg,rgba(40,0,12,.9),rgba(20,0,6,.9));}
 .lbtn.red::before{background:linear-gradient(180deg,rgba(255,68,102,.08),transparent 60%);}
 .lbtn.red::after{border-color:rgba(255,68,102,.15) transparent transparent rgba(255,68,102,.08);}
@@ -666,65 +663,78 @@ body.has-controls #wrap canvas{
   <h1>PIXEL<br>BLASTER DX</h1>
 
   <!-- Main menu -->
-  <div id="menu-main" style="display:flex;flex-direction:column;gap:8px;width:min(300px,90vw);">
-    <!-- Name -->
-    <div class="lobby-card" style="padding:10px 14px;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:7px;color:#446644;white-space:nowrap;">NAME</span>
-        <input class="linput" id="player-name" maxlength="8" placeholder="PLAYER1" style="letter-spacing:1px;font-size:8px;flex:1;">
+  <div id="menu-main" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:min(560px,96vw);max-height:calc(100vh - 50px);overflow-y:hidden;">
+    <!-- Left Column -->
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0;">
+      <!-- Name -->
+      <div class="lobby-card" style="flex-direction:row;align-items:center;gap:6px;padding:5px 10px;">
+        <span style="font-size:6px;color:#446644;white-space:nowrap;">NAME</span>
+        <input class="linput" id="player-name" maxlength="8" placeholder="PLAYER1" style="letter-spacing:1px;font-size:7px;flex:1;padding:6px 8px;">
+      </div>
+      <!-- Mode buttons -->
+      <div class="lobby-card" style="gap:4px;">
+        <h2>⚔ SELECT MODE</h2>
+        <button class="lbtn" id="btn-single">▶ 1 PLAYER</button>
+        <button class="lbtn" id="btn-local2" style="border-color:#44aaff;color:#44aaff;background:linear-gradient(180deg,#001222,#000a14);font-size:7px;padding:5px 8px;">👥 2P LOCAL</button>
+        <button class="lbtn" id="btn-local4" style="border-color:#ff88ff;color:#ff88ff;background:linear-gradient(180deg,#220033,#0a0014);font-size:7px;padding:5px 8px;">👥 4P LOCAL</button>
+        <div style="display:flex;gap:4px;">
+          <button class="lbtn" id="btn-pvp-toggle" style="flex:1;font-size:6px;padding:5px 4px;border-color:var(--border);color:var(--text-dim);">⚔ PVP OFF</button>
+          <button class="lbtn red" id="btn-host" style="flex:1;font-size:6px;padding:5px 4px;">📡 HOST</button>
+          <button class="lbtn gold" id="btn-join" style="flex:1;font-size:6px;padding:5px 4px;">🔗 JOIN</button>
+        </div>
+      </div>
+      <!-- Coin + Difficulty row -->
+      <div style="display:flex;gap:6px;">
+        <div class="lobby-card" style="flex:1;flex-direction:row;align-items:center;gap:4px;padding:5px 10px;">
+          <span style="font-size:10px;">🪙</span>
+          <span style="font-size:8px;color:var(--gold);text-shadow:0 0 4px var(--gold-glow);flex:1;" id="lobby-coins">0</span>
+        </div>
+        <div class="lobby-card" style="flex:1;padding:5px 10px;">
+          <div class="diff-row" id="diff-group" style="gap:4px;">
+            <button class="dbtn" data-diff="easy" style="font-size:6px;padding:5px 2px;">EASY</button>
+            <button class="dbtn active" data-diff="normal" style="font-size:6px;padding:5px 2px;">NORM</button>
+            <button class="dbtn" data-diff="hard" style="font-size:6px;padding:5px 2px;">HARD</button>
+            <button class="dbtn" data-diff="insane" style="font-size:6px;padding:5px 2px;color:#ff4466;border-color:#442222;">💀</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="lbtn" id="btn-daily" style="flex:1;font-size:6px;padding:5px 8px;border-color:var(--cyan);color:var(--cyan);">📅 DAILY</button>
+        <button class="lbtn" id="btn-endless" style="flex:1;font-size:6px;padding:5px 8px;border-color:var(--cyan);color:var(--cyan);">♾ ENDLESS</button>
+        <button class="lbtn" id="btn-timeattack" style="flex:1;font-size:6px;padding:5px 8px;border-color:var(--orange);color:var(--orange);">⏱ TIME ATK</button>
+        <button class="lbtn" id="btn-settings-lobby" style="flex:0 0 auto;font-size:6px;padding:5px 8px;width:auto;">⚙</button>
+      </div>
+      <!-- Upgrades -->
+      <div class="lobby-card" id="upgrade-card">
+        <h2>🏪 UPGRADES</h2>
+        <div id="upgrade-list" style="display:grid;grid-template-columns:1fr 1fr;gap:2px;"></div>
       </div>
     </div>
-    <!-- Mode buttons -->
-    <div class="lobby-card" style="gap:8px;">
-      <h2>⚔ SELECT MODE</h2>
-      <button class="lbtn" id="btn-single">▶  1 PLAYER</button>
-      <button class="lbtn" id="btn-local2" style="border-color:#44aaff;color:#44aaff;background:linear-gradient(180deg,#001222,#000a14);">👥  2 PLAYERS LOCAL</button>
-      <button class="lbtn" id="btn-local4" style="border-color:#ff88ff;color:#ff88ff;background:linear-gradient(180deg,#220033,#0a0014);">👨‍👩‍👧‍👧  4 PLAYERS LOCAL</button>
-      <div style="display:flex;gap:4px;">
-        <button class="lbtn" id="btn-pvp-toggle" style="flex:1;font-size:7px;padding:8px 4px;border-color:var(--border);color:var(--text-dim);">⚔ PVP OFF</button>
+    <!-- Right Column -->
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0;">
+      <!-- Leaderboard -->
+      <div class="lobby-card" style="padding:5px 10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h2 style="border:none;padding:0;margin:0;">🏆 LEADERBOARD</h2>
+          <button class="lbtn gold" id="btn-global-lb" style="font-size:5px;padding:3px 6px;width:auto;">🌍 GLOBAL</button>
+        </div>
+        <div id="leaderboard-list" style="max-height:70px;overflow-y:hidden;"></div>
       </div>
-      <div style="display:flex;gap:8px;">
-        <button class="lbtn red" id="btn-host" style="flex:1;font-size:8px;">📡 HOST</button>
-        <button class="lbtn gold" id="btn-join" style="flex:1;font-size:8px;">🔗 JOIN</button>
+      <!-- Skins -->
+      <div class="lobby-card" id="skin-card" style="padding:5px 10px;">
+        <h2>🚀 SHIP SKINS</h2>
+        <div id="skin-list" style="display:flex;flex-wrap:wrap;gap:3px;justify-content:center;"></div>
       </div>
-    </div>
-    <!-- Coin balance -->
-    <div class="lobby-card" style="padding:8px 14px;flex-direction:row;align-items:center;gap:8px;">
-      <span style="font-size:14px;">🪙</span>
-      <span style="font-size:9px;color:var(--gold);text-shadow:0 0 6px var(--gold-glow);flex:1;" id="lobby-coins">0</span>
-      <button class="lbtn" id="btn-daily" style="font-size:7px;padding:8px 10px;width:auto;border-color:var(--cyan);color:var(--cyan);">📅 DAILY</button>
-      <button class="lbtn" id="btn-settings-lobby" style="font-size:7px;padding:8px 10px;width:auto;">⚙</button>
-    </div>
-    <!-- Difficulty -->
-    <div class="lobby-card" style="padding:10px 14px;">
-      <h2>⚙ DIFFICULTY</h2>
-      <div class="diff-row" id="diff-group">
-        <button class="dbtn" data-diff="easy">EASY</button>
-        <button class="dbtn active" data-diff="normal">NORM</button>
-        <button class="dbtn" data-diff="hard">HARD</button>
-        <button class="dbtn" data-diff="insane" style="color:#ff4466;border-color:#442222;">💀</button>
+      <!-- Achievements -->
+      <div class="lobby-card" id="ach-card" style="padding:5px 10px;">
+        <h2>🎖 ACHIEVEMENTS</h2>
+        <div id="ach-list" style="display:flex;flex-wrap:wrap;gap:3px;"></div>
       </div>
-    </div>
-    <div class="lobby-card" id="upgrade-card">
-      <h2>🏪 UPGRADES</h2>
-      <div id="upgrade-list"></div>
-    </div>
-    <div class="lobby-card">
-      <h2>🏆 LEADERBOARD</h2>
-      <div id="leaderboard-list"></div>
-      <button class="lbtn gold" id="btn-global-lb" style="font-size:7px;margin-top:4px;">🌍 GLOBAL LEADERBOARD</button>
-    </div>
-    <div class="lobby-card" id="skin-card">
-      <h2>🚀 SHIP SKINS</h2>
-      <div id="skin-list" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;"></div>
-    </div>
-    <div class="lobby-card" id="ach-card">
-      <h2>🎖 ACHIEVEMENTS</h2>
-      <div id="ach-list" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
-    </div>
-    <div class="lobby-card" id="stats-card" style="display:none;">
-      <h2>📊 STATS</h2>
-      <div id="stats-list" style="display:flex;flex-direction:column;gap:2px;"></div>
+      <!-- Stats -->
+      <div class="lobby-card" id="stats-card" style="display:none;padding:5px 10px;">
+        <h2>📊 STATS</h2>
+        <div id="stats-list" style="display:grid;grid-template-columns:1fr 1fr;gap:1px;"></div>
+      </div>
     </div>
   </div>
 
@@ -1089,10 +1099,10 @@ function renderUpgrades(){
   if(!el)return;
   el.innerHTML=Object.keys(UPGRADES).map(id=>{
     const u=UPGRADES[id],lv=upgLevel(id),maxed=lv>=u.max,cst=lv<u.max?u.cost[lv]:0;
-    return `<div class="lb-row" style="cursor:${maxed?'default':'pointer'}">
-      <span style="font-size:10px;width:20px;">${u.icon}</span>
-      <span class="lb-name" style="font-size:6px;">${u.name}<br><span style="color:var(--text-dim);font-size:5px;">${u.desc}</span></span>
-      <span style="font-size:6px;color:${maxed?'var(--green)':'var(--gold)'};min-width:40px;text-align:right;">${maxed?'MAX':'LV.'+(lv+1)+' 🪙'+cst}</span>
+    return `<div class="lb-row" style="cursor:${maxed?'default':'pointer'};padding:3px 0;font-size:6px;">
+      <span style="font-size:8px;width:14px;">${u.icon}</span>
+      <span style="font-size:5px;flex:1;line-height:1.2;">${u.name}<br><span style="color:var(--text-dim);font-size:4px;">${u.desc}</span></span>
+      <span style="font-size:5px;color:${maxed?'var(--green)':'var(--gold)'};min-width:30px;text-align:right;white-space:nowrap;">${maxed?'MAX':'L'+(lv+1)+' 🪙'+cst}</span>
     </div>`;
   }).join('');
   el.querySelectorAll('.lb-row').forEach((row,i)=>{
@@ -2363,7 +2373,7 @@ function showGameOverMsg(title,w,scores,hi){
 function showLobbyMenu(){
   lobbyEl.style.display='flex';
   lobbyEl.classList.add('no-anim');
-  document.getElementById('menu-main').style.display='flex';
+  document.getElementById('menu-main').style.display='grid';
   document.getElementById('menu-host').style.display='none';
   document.getElementById('menu-join').style.display='none';
   wrapEl.style.display='none';
@@ -2550,10 +2560,6 @@ function addChatMsg(who,txt){
     document.getElementById('btn-local2').onmouseover=function(){this.style.background='linear-gradient(180deg,#001e33,#001222)';};
     document.getElementById('btn-local2').onmouseout=function(){this.style.background='linear-gradient(180deg,#001222,#000a14)';};
     document.getElementById('btn-single').onclick=()=>{local4Mode=false;endlessMode=false;timeAttackMode=false;startLocalGame('single');};
-    document.getElementById('btn-single').insertAdjacentHTML('afterend',
-      `<button class="lbtn" id="btn-endless" style="border-color:var(--cyan);color:var(--cyan);background:linear-gradient(180deg,rgba(0,50,50,.9),rgba(0,20,20,.9));font-size:9px;">♾  ENDLESS</button>`+
-      `<button class="lbtn" id="btn-timeattack" style="border-color:var(--orange);color:var(--orange);background:linear-gradient(180deg,rgba(50,30,0,.9),rgba(20,15,0,.9));font-size:9px;">⏱  TIME ATTACK</button>`
-    );
     document.getElementById('btn-endless').onclick=()=>{local4Mode=false;endlessMode=true;timeAttackMode=false;startLocalGame('single');};
     document.getElementById('btn-timeattack').onclick=()=>{local4Mode=false;endlessMode=true;timeAttackMode=true;startLocalGame('single');};
 document.getElementById('btn-local2').onclick=()=>{local4Mode=false;startLocalGame('local2');};
@@ -2662,9 +2668,9 @@ function renderSkins(){
   if(!el)return;
   const owned=JSON.parse(localStorage.getItem('pbSkins'))||['default'];
   el.innerHTML=Object.keys(SHIP_SKINS).map(k=>`
-    <div class="skin-item" data-skin="${k}" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;border:1px solid ${selectedSkin===k?'var(--gold)':'var(--border)'};border-radius:2px;cursor:pointer;background:${selectedSkin===k?'rgba(255,204,0,.08)':'transparent'};">
-      <canvas class="skin-preview" width="48" height="36" style="image-rendering:pixelated;"></canvas>
-      <span style="font-size:5px;color:${owned.includes(k)?'var(--green)':'var(--text-dim)'};">${SKIN_NAMES[k]||k.toUpperCase()}${owned.includes(k)?'':' 🔒'}</span>
+    <div class="skin-item" data-skin="${k}" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:3px;border:1px solid ${selectedSkin===k?'var(--gold)':'var(--border)'};border-radius:2px;cursor:pointer;background:${selectedSkin===k?'rgba(255,204,0,.08)':'transparent'};">
+      <canvas class="skin-preview" width="36" height="27" style="image-rendering:pixelated;"></canvas>
+      <span style="font-size:4px;color:${owned.includes(k)?'var(--green)':'var(--text-dim)'};">${SKIN_NAMES[k]||k.toUpperCase()}${owned.includes(k)?'':' 🔒'}</span>
     </div>
   `).join('');
   el.querySelectorAll('.skin-item').forEach(item=>{
@@ -2675,7 +2681,7 @@ function renderSkins(){
     if(cvs){
       const cx=cvs.getContext('2d');
       const spr=SHIP_SKINS[k];
-      if(spr){for(let r=0;r<spr.length;r++)for(let c=0;c<spr[r].length;c++){const v=spr[r][c];if(v){cx.fillStyle=v===1?SKIN_COLORS[k]||'#00ff88':v===2?'#ffcc00':'#00aaff';cx.fillRect(c*4,r*4,4,4);}}}
+      if(spr){for(let r=0;r<spr.length;r++)for(let c=0;c<spr[r].length;c++){const v=spr[r][c];if(v){cx.fillStyle=v===1?SKIN_COLORS[k]||'#00ff88':v===2?'#ffcc00':'#00aaff';cx.fillRect(c*3,r*3,3,3);}}}
     }
     if(!owned.includes(k)){
       item.style.cursor='default';item.title='LOCKED — BUY FOR 200 COINS';
