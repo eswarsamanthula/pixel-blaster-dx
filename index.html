@@ -775,33 +775,54 @@ body.has-controls #wrap canvas{
   -webkit-font-smoothing:antialiased;
 }
 
-/* ── POWER SELECT OVERLAY ── */
+/* ── PER-WAVE SHOP ── */
 #power-select{
   position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
-  background:rgba(0,0,0,.82);z-index:70;gap:10px;padding:16px;
-  animation:overlayIn .25s ease-out both;
+  background:rgba(0,0,0,.88);z-index:70;gap:8px;padding:16px;
+  animation:overlayIn .3s ease-out both;
 }
-#power-select h2{font-size:11px;color:var(--gold);text-shadow:0 0 12px var(--gold);letter-spacing:2px;}
-#power-select .p-sub{font-size:6px;color:var(--text-dim);text-align:center;line-height:1.6;}
-.p-cards{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
-.p-card{
-  width:130px;background:linear-gradient(160deg,rgba(13,24,13,.98),rgba(5,8,5,.98));
-  border:1px solid var(--border);border-radius:4px;padding:10px 8px;
-  cursor:pointer;text-align:center;transition:all .12s;display:flex;flex-direction:column;gap:6px;
+#power-select .shop-header{
+  display:flex;justify-content:space-between;align-items:center;width:min(460px,90vw);
+  padding:6px 10px;border-bottom:1px solid var(--border-dim);
+}
+#power-select .shop-header h2{font-size:11px;color:var(--gold);text-shadow:0 0 12px var(--gold);letter-spacing:2px;border:none;padding:0;margin:0;}
+#power-select .shop-header .shop-coins{font-size:10px;color:var(--gold);text-shadow:0 0 6px var(--gold-glow);letter-spacing:1px;}
+#power-select .shop-sub{font-size:7px;color:var(--text-dim);text-align:center;line-height:1.6;letter-spacing:1px;}
+#power-select .shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:min(460px,90vw);}
+.shop-card{
+  display:flex;flex-direction:column;gap:5px;
+  background:linear-gradient(160deg,rgba(13,24,13,.98),rgba(5,8,5,.98));
+  border:1px solid var(--border);border-radius:4px;padding:10px 10px 8px;
+  cursor:pointer;text-align:center;transition:all .12s;
   box-shadow:var(--card-shadow);position:relative;overflow:hidden;
 }
-.p-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.3;}
-.p-card:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 0 20px var(--gold-glow);}
-.p-card:active{transform:translateY(0);}
-.p-card .p-icon{font-size:20px;line-height:1;}
-.p-card .p-name{font-size:8px;color:var(--gold);letter-spacing:1px;}
-.p-card .p-desc{font-size:6px;color:var(--text-dim);line-height:1.5;}
-.p-card .p-price{font-size:7px;color:var(--cyan);margin-top:2px;}
-.p-card .p-free{font-size:7px;color:var(--green);}
-.p-card.bought{border-color:var(--green);opacity:.5;cursor:default;transform:none;}
-#power-select .p-skip{font-size:7px;color:var(--text-dim);cursor:pointer;text-decoration:underline;margin-top:2px;}
-#power-select .p-skip:hover{color:var(--green);}
-#power-select .p-coins{font-size:7px;color:var(--gold);text-shadow:0 0 6px var(--gold-glow);}
+.shop-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.2;}
+.shop-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 0 16px var(--gold-glow);}
+.shop-card:active{transform:translateY(0);}
+.shop-card.bought{border-color:var(--green);opacity:.45;cursor:default;transform:none;box-shadow:none;}
+.shop-card .s-icon{font-size:22px;line-height:1;}
+.shop-card .s-name{font-size:8px;color:var(--gold);letter-spacing:1px;}
+.shop-card .s-desc{font-size:6px;color:var(--text-dim);line-height:1.5;}
+.shop-card .s-price{font-size:8px;color:var(--cyan);margin-top:1px;letter-spacing:1px;}
+.shop-card .s-free{font-size:8px;color:var(--green);text-shadow:0 0 6px var(--green-glow);}
+.shop-card .s-owned{font-size:7px;color:var(--text-muted);}
+.shop-card .s-badge{position:absolute;top:4px;right:4px;font-size:9px;color:var(--green);text-shadow:0 0 6px var(--green-glow);}
+.shop-footer{display:flex;justify-content:center;gap:12px;align-items:center;width:min(460px,90vw);padding-top:4px;border-top:1px solid var(--border-dim);}
+.shop-footer .shop-btn{
+  font-family:'Press Start 2P',monospace;font-size:9px;padding:10px 20px;
+  border:1px solid var(--green);background:linear-gradient(180deg,rgba(0,40,10,.9),rgba(0,20,5,.9));
+  color:var(--green);cursor:pointer;border-radius:3px;letter-spacing:1px;
+  transition:all .12s;text-shadow:0 0 6px var(--green-glow);
+}
+.shop-footer .shop-btn:hover{background:linear-gradient(180deg,rgba(0,60,20,.95),rgba(0,30,10,.95));box-shadow:0 0 20px var(--green-glow);}
+.shop-footer .shop-btn:active{transform:translateY(1px);}
+.shop-footer .shop-btn.gold{border-color:var(--gold);color:var(--gold);text-shadow:0 0 6px var(--gold-glow);background:linear-gradient(180deg,rgba(40,30,0,.9),rgba(20,15,0,.9));}
+.shop-footer .shop-btn.gold:hover{background:linear-gradient(180deg,rgba(60,44,0,.95),rgba(30,22,0,.95));box-shadow:0 0 20px var(--gold-glow);}
+.shop-stats{
+  display:flex;gap:14px;flex-wrap:wrap;justify-content:center;
+  font-size:7px;color:var(--text-dim);letter-spacing:1px;
+}
+.shop-stats span{color:var(--text-body);}
 
 /* ── BOSS FLASH ── */
 #boss-flash{position:absolute;inset:0;pointer-events:none;z-index:50;background:rgba(255,0,0,.35);opacity:0;transition:opacity .05s;}
@@ -1660,61 +1681,74 @@ function shareScore(){
 }
 
 // ══════════════════════════════════════════
-//  POWER SELECTION
+//  PER-WAVE SHOP
 // ══════════════════════════════════════════
-function showPowerSelect(){
+let shopBought=0;
+function showShop(){
   if(gameMode==='online'||powerSelectActive)return;
-  powerSelectActive=true;powerPickCount=0;powerPicked=[];
-  const pool=PTYPES.filter(t=>t!=='bomb'); // bomb excluded from selection (still drops)
-  const shuffled=[...pool].sort(()=>Math.random()-.5).slice(0,3);
+  powerSelectActive=true;shopBought=0;powerPicked=[];
+  const pool=[...PTYPES];
+  const shuffled=[...pool].sort(()=>Math.random()-.5).slice(0,4);
   const el=document.getElementById('power-select');
   if(!el){powerSelectActive=false;return;}
   el.style.display='flex';
-  const freePick=powerPicked.length===0;
+  const price=(w)=>5+w*2+shopBought*5;
+  const p1Stats=`❤️${p1.lives} 💣${p1.bombs} ${p1._overcharge>1?'🔥':'⚡'}`;
+  const p2Stats=p2&&!p2.dead?` | P2: ❤️${p2.lives} 💣${p2.bombs}`:'';
   el.innerHTML=`
-    <h2>⚡ CHOOSE YOUR POWER</h2>
-    <div class="p-sub">WAVE ${wave} BONUS — FIRST PICK FREE</div>
-    <div class="p-cards">${shuffled.map(t=>`
-      <div class="p-card" data-type="${t}">
-        <div class="p-icon">${colorblindMode?PSHAPES[t]:['🛡','⚡','🔱','💣','❤️','⇶','🧲','🔥'][PTYPES.indexOf(t)]}</div>
-        <div class="p-name">${PNAMES[t]}</div>
-        <div class="p-desc">${PDESCS[t]}${PFUSIONS[t]&&powerPicked.includes(t)?' → '+PFUSIONS[t].name:''}</div>
-        <div class="${freePick?'p-free':'p-price'}">${freePick?'FREE':'🪙 15'}</div>
+    <div class="shop-header">
+      <h2>🏪 WAVE ${wave} SHOP</h2>
+      <div class="shop-coins">🪙 ${totalCoins}</div>
+    </div>
+    <div class="shop-stats">${p1Stats}${p2Stats}</div>
+    <div class="shop-sub">${shopBought===0?'FIRST PICK FREE':'SELECT YOUR POWER-UP'}</div>
+    <div class="shop-grid">${shuffled.map(t=>`
+      <div class="shop-card" data-type="${t}">
+        <div class="s-icon">${colorblindMode?PSHAPES[t]:['🛡','⚡','🔱','💣','❤️','⇶','🧲','🔥'][PTYPES.indexOf(t)]}</div>
+        <div class="s-name">${PNAMES[t]}</div>
+        <div class="s-desc">${PDESCS[t]}</div>
+        <div class="${shopBought===0?'s-free':'s-price'}">${shopBought===0?'⭐ FREE':'🪙 '+price(wave)}</div>
       </div>
     `).join('')}</div>
-    <div class="p-coins">🪙 ${totalCoins}</div>
-    <div class="p-skip" id="ps-skip">SKIP →</div>
+    <div class="shop-footer">
+      <button class="shop-btn gold" id="shop-start">▶ START WAVE</button>
+    </div>
   `;
-  el.querySelectorAll('.p-card').forEach(card=>{
+  // Wire up cards
+  el.querySelectorAll('.shop-card').forEach(card=>{
     card.addEventListener('click',()=>{
       if(card.classList.contains('bought'))return;
       const type=card.dataset.type;
-      const free=powerPicked.length===0;
-      if(!free&&!spendCoins(15))return;
-      powerPicked.push(type);powerPickCount++;
+      const cost=shopBought===0?0:price(wave);
+      if(cost>0&&!spendCoins(cost)){sfxDeny();return;}
+      shopBought++;powerPicked.push(type);
+      // Apply to correct player
       applyWavePower(type);
       card.classList.add('bought');
+      const badge=document.createElement('span');
+      badge.className='s-badge';badge.textContent='✅';
+      card.appendChild(badge);
       sfxPU();updateCoinUI();
-      const remaining=el.querySelectorAll('.p-card:not(.bought)');
-      if(remaining.length===0||!free&&!remaining.length){setTimeout(hidePowerSelect,300);}
-      el.querySelector('.p-coins').textContent='🪙 '+totalCoins;
-      // update price labels
-      el.querySelectorAll('.p-card:not(.bought)').forEach(c=>{
-        const p=c.querySelector('.p-free,.p-price');
-        if(p){p.className='p-price';p.textContent='🪙 15';}
+      // Refresh coin display
+      const ch=el.querySelector('.shop-coins');
+      if(ch)ch.textContent='🪙 '+totalCoins;
+      // Update price labels on unbought cards
+      el.querySelectorAll('.shop-card:not(.bought)').forEach(c=>{
+        const pp=c.querySelector('.s-free,.s-price');
+        if(pp){pp.className='s-price';pp.textContent='🪙 '+price(wave);}
       });
+      el.querySelector('.shop-sub').textContent='MORE POWER? KEEP BUYING';
     });
   });
-  document.getElementById('ps-skip').onclick=hidePowerSelect;
-  const autoTimer=setTimeout(()=>{if(powerSelectActive){hidePowerSelect();}},5000);
-  el._timer=autoTimer;
+  document.getElementById('shop-start').onclick=hideShop;
 }
-function hidePowerSelect(){
+function hideShop(){
   powerSelectActive=false;
   const el=document.getElementById('power-select');
-  if(el){el.style.display='none';if(el._timer)clearTimeout(el._timer);}
+  if(el)el.style.display='none';
   if(wavePending){wavePending=false;spawnWave();}
 }
+function sfxDeny(){try{const a=new AudioContext(),o=a.createOscillator();o.type='square';o.frequency.value=120;o.connect(a.destination);o.start();setTimeout(()=>o.stop(),120);}catch(e){}}
 function applyWavePower(type){
   if(!p1||p1.dead)return;
   const fused=powerPicked.filter(t=>t===type).length>=2;
@@ -2600,7 +2634,7 @@ function update(){
       waveBanner.textContent='WAVE '+(wave-1)+' CLEAR!';
       waveBanner.style.display='block';waveClearTimer=90;
       wavePending=true;
-      setTimeout(()=>{if(state==='playing'&&!gamePaused&&wavePending){showPowerSelect();}else if(wavePending){wavePending=false;spawnWave();}},400);
+      setTimeout(()=>{if(state==='playing'&&!gamePaused&&wavePending){showShop();}else if(wavePending){wavePending=false;spawnWave();}},400);
     }
     combo=0;comboTimer=0;updateComboHud();
     drops=[];coinDrops=[];  // clear leftover drops
