@@ -310,21 +310,64 @@ body.game-active::after{
 .llabel{font-size:8px;color:var(--text-dim);text-align:center;letter-spacing:1px;}
 .lcode{font-size:16px;color:var(--gold);text-align:center;letter-spacing:8px;padding:8px;border:1px dashed var(--border);border-radius:4px;cursor:pointer;background:rgba(0,0,0,.3);font-family:'Press Start 2P',monospace;}
 .lstatus{font-size:8px;color:var(--text-muted);text-align:center;}
+.lstatus.loading::before{content:'⏳';display:inline-block;animation:spin 1s steps(8) infinite;margin-right:4px;}
+.lstatus.error{color:var(--red);}
+.lstatus.success{color:var(--green);}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 .back-link{font-size:8px;color:var(--text-dim);cursor:pointer;text-align:center;padding:4px;text-decoration:underline;}
 .back-link:hover{color:var(--green);}
 
-/* Responsive grid collapse */
+/* Grid cell placement */
+.grid-h1{grid-column:span 4;grid-column-start:2;grid-row:1;}
+.grid-h2{grid-column:span 3;grid-row:2/4;}
+.grid-h3{grid-column:span 3;grid-row:4/6;}
+.grid-h4{grid-column:span 3;grid-row:6/8;}
+.grid-h5{grid-column:span 3;grid-row:8/10;}
+.grid-h6{grid-column:span 3;grid-column-start:4;grid-row:2/4;}
+.grid-h7{grid-column:span 3;grid-column-start:4;grid-row:4/6;}
+.grid-h8{grid-column:span 3;grid-column-start:4;grid-row:6/8;}
+.grid-h9{grid-column:span 3;grid-column-start:4;grid-row:8/10;}
+.grid-h10{grid-column:span 4;grid-column-start:2;grid-row:10;}
+
+/* Responsive grid collapse — no !important needed with specific selectors */
 @media(max-width:768px){
   #menu-main.lobby-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto;padding:8px;gap:6px;overflow-y:auto;}
-  #menu-main.lobby-grid>*{grid-column:span 2!important;grid-row:auto!important;}
-  .grid-hero{grid-column:span 2!important;}
-  .grid-footer{grid-column:span 2!important;}
+  #menu-main.lobby-grid>.grid-h1,
+  #menu-main.lobby-grid>.grid-h2,
+  #menu-main.lobby-grid>.grid-h3,
+  #menu-main.lobby-grid>.grid-h4,
+  #menu-main.lobby-grid>.grid-h5,
+  #menu-main.lobby-grid>.grid-h6,
+  #menu-main.lobby-grid>.grid-h7,
+  #menu-main.lobby-grid>.grid-h8,
+  #menu-main.lobby-grid>.grid-h9,
+  #menu-main.lobby-grid>.grid-h10{grid-column:span 2;grid-row:auto;}
   .grid-hero .hero-title{font-size:clamp(10px,3vw,16px);}
 }
 @media(max-width:480px){
   #menu-main.lobby-grid{grid-template-columns:1fr;padding:6px;gap:5px;}
-  #menu-main.lobby-grid>*{grid-column:span 1!important;}
+  #menu-main.lobby-grid>.grid-h1,
+  #menu-main.lobby-grid>.grid-h2,
+  #menu-main.lobby-grid>.grid-h3,
+  #menu-main.lobby-grid>.grid-h4,
+  #menu-main.lobby-grid>.grid-h5,
+  #menu-main.lobby-grid>.grid-h6,
+  #menu-main.lobby-grid>.grid-h7,
+  #menu-main.lobby-grid>.grid-h8,
+  #menu-main.lobby-grid>.grid-h9,
+  #menu-main.lobby-grid>.grid-h10{grid-column:span 1;grid-row:auto;}
   .grid-hero{flex-wrap:wrap;gap:6px;}
+}
+
+/* Touch target sizing on mobile */
+@media(pointer:coarse){
+  .grid-card .btn,.grid-card .dbtn,.grid-card .mode-btn{min-height:44px;padding:6px 8px;}
+  .grid-card .btn-play{padding:14px 16px;min-height:48px;}
+  .grid-card .btn-play .btn-play-sub{font-size:9px;}
+  .grid-card .linput{min-height:44px;font-size:10px;}
+  .grid-card .online-row{gap:6px;}
+  .grid-hero{padding:10px 14px;}
+  .grid-footer{padding:8px 14px;min-height:44px;}
 }
 }
 .lc-hero::before{
@@ -1131,7 +1174,7 @@ body.has-controls #wrap canvas{
   <div id="menu-main" class="lobby-grid">
 
     <!-- H1: Header (cols 2-5, row 1) -->
-    <div class="grid-hero" style="grid-column:span 4;grid-column-start:2;grid-row:1;">
+    <div class="grid-hero grid-h1">
       <div>
         <div class="hero-title">PIXEL BLASTER DX</div>
         <div class="hero-sub">▸ ■ ■ ■ ◂</div>
@@ -1140,7 +1183,7 @@ body.has-controls #wrap canvas{
     </div>
 
     <!-- H2: Start + Mode (left, rows 2-3) -->
-    <div class="grid-card" style="grid-column:span 3;grid-row:2/4;">
+    <div class="grid-card grid-h2">
       <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
         <div style="display:flex;align-items:center;gap:6px;">
           <span style="font-size:14px;">▶</span>
@@ -1169,7 +1212,7 @@ body.has-controls #wrap canvas{
     </div>
 
     <!-- H3: Name + Online (left, rows 4-5) -->
-    <div class="grid-card" style="grid-column:span 3;grid-row:4/6;">
+    <div class="grid-card grid-h3">
       <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
         <div style="display:flex;gap:5px;align-items:center;">
           <label style="font-size:8px;color:var(--text-dim);white-space:nowrap;">NAME</label>
@@ -1184,34 +1227,34 @@ body.has-controls #wrap canvas{
     </div>
 
     <!-- H4: Upgrades (left, rows 6-7) -->
-    <div class="grid-card" style="grid-column:span 3;grid-row:6/8;">
+    <div class="grid-card grid-h4">
       <h2>🏪 UPGRADES</h2>
       <div class="upgrade-grid" id="upgrade-list" style="flex:1;"></div>
     </div>
 
     <!-- H5: Settings + Achievements (left, rows 8-9) -->
-    <div class="grid-card" style="grid-column:span 3;grid-row:8/10;">
+    <div class="grid-card grid-h5">
       <h2>⚙ SETTINGS</h2>
       <div style="display:flex;gap:3px;">
-        <button class="btn" id="btn-settings-lobby" style="flex:1;">SETTINGS</button>
-        <button class="btn" id="btn-sound" style="flex:0 0 auto;font-size:10px;">🔊</button>
-        <button class="btn" id="btn-fullscreen" style="flex:0 0 auto;font-size:10px;">⛶</button>
+          <button class="btn" id="btn-settings-lobby" style="flex:1;">SETTINGS</button>
+          <button class="btn" id="btn-sound" style="flex:0 0 auto;font-size:10px;" aria-label="Toggle sound">🔊</button>
+          <button class="btn" id="btn-fullscreen" style="flex:0 0 auto;font-size:10px;" aria-label="Toggle fullscreen">⛶</button>
       </div>
       <h2 style="margin-top:2px;">🎖 ACHIEVEMENTS</h2>
       <div id="ach-list" style="display:flex;flex-wrap:wrap;gap:2px;"></div>
     </div>
 
     <!-- H6: Leaderboard (right, rows 2-3) -->
-    <div class="grid-card" style="grid-column:span 3;grid-row:2/4;">
+    <div class="grid-card grid-h6">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <h2 style="border:none;padding:0;margin:0;">🏆 LEADERBOARD</h2>
-        <button class="btn btn-gold" id="btn-global-lb" style="width:auto;padding:4px 7px;font-size:7px;">🌍 GLOBAL</button>
+        <button class="btn btn-gold" id="btn-global-lb" style="width:auto;padding:4px 7px;font-size:7px;" aria-label="Global leaderboard">🌍 GLOBAL</button>
       </div>
       <div id="leaderboard-list" style="flex:1;overflow-y:auto;min-height:0;"></div>
     </div>
 
     <!-- H7: Ship + Skins (right, rows 4-5) -->
-    <div class="grid-card" id="skin-card" style="grid-column:span 3;grid-row:4/6;">
+    <div class="grid-card grid-h7" id="skin-card">
       <h2>🚀 SHIP</h2>
       <div class="skin-preview-wrap">
         <canvas class="skin-preview-main" width="64" height="48"></canvas>
@@ -1224,7 +1267,7 @@ body.has-controls #wrap canvas{
     </div>
 
     <!-- H8: Stats (right, rows 6-7) -->
-    <div class="grid-card" id="stats-card" style="grid-column:span 3;grid-row:6/8;">
+    <div class="grid-card grid-h8" id="stats-card">
       <h2>📊 STATS</h2>
       <div class="stats-grid" id="stats-list" style="flex:1;">
         <span>KILLS</span><span class="stat-val" id="stat-kills">0</span>
@@ -1243,7 +1286,7 @@ body.has-controls #wrap canvas{
     </div>
 
     <!-- H9: Controls + credits (right, rows 8-9) -->
-    <div class="grid-card" style="grid-column:span 3;grid-row:8/10;">
+    <div class="grid-card grid-h9">
       <h2>🎮 CONTROLS</h2>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px 8px;font-size:8px;color:var(--text-dim);">
         <span style="color:var(--text);">← →</span><span>MOVE</span>
@@ -1256,7 +1299,7 @@ body.has-controls #wrap canvas{
     </div>
 
     <!-- H10: Footer (cols 2-5, row 10) -->
-    <div class="grid-footer" style="grid-column:span 4;grid-column-start:2;grid-row:10;">
+    <div class="grid-footer grid-h10">
       <span>PIXEL BLASTER DX</span>
       <span>·</span>
       <span>RETRO FUTURE ARCADE</span>
@@ -2412,18 +2455,19 @@ let hostMode='2p';
 function genCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let r='';for(let i=0;i<5;i++)r+=c[~~(Math.random()*c.length)];return r;}
 
 function createRoom(){
-  if(typeof Peer==='undefined'){document.getElementById('host-status').textContent='ERROR: PEERJS NOT LOADED';return;}
+  if(typeof Peer==='undefined'){const el=document.getElementById('host-status');el.textContent='ERROR: PEERJS NOT LOADED';el.className='lstatus error';return;}
   const modeBtn=document.querySelector('#host-mode-group .dbtn.active');
   hostMode=modeBtn?modeBtn.dataset.hostmode:'2p';
   const code=genCode();
   document.getElementById('room-code').textContent=code;
-  document.getElementById('host-status').textContent='CONNECTING...';
-  let p;try{p=new Peer(code,{debug:0});}catch(e){document.getElementById('host-status').textContent='PEER ERROR';return;}
-  const to=setTimeout(()=>document.getElementById('host-status').textContent='SERVER TIMEOUT',12000);
+  const hs=document.getElementById('host-status');hs.textContent='CONNECTING...';hs.className='lstatus loading';
+  let p;try{p=new Peer(code,{debug:0});}catch(e){hs.textContent='PEER ERROR';hs.className='lstatus error';return;}
+  const to=setTimeout(()=>{hs.textContent='SERVER TIMEOUT';hs.className='lstatus error';},12000);
   let connCount=0;
   p.on('open',()=>{
     clearTimeout(to);peer=p;isHost=true;gameMode='online';myRole='p1';
-    document.getElementById('host-status').textContent=hostMode==='4p'?'READY — WAITING FOR PLAYERS (1/3)...':'READY — WAITING FOR P2...';
+    hs.className='lstatus success';
+    hs.textContent=hostMode==='4p'?'READY — WAITING FOR PLAYERS (1/3)...':'READY — WAITING FOR P2...';
     p.on('connection',c=>{
       connCount++;
       if(hostMode==='2p'&&connCount>1){try{c.close();}catch(e){}return;}
@@ -2432,7 +2476,8 @@ function createRoom(){
       else if(!conn2)conn2=c;
       else if(!conn3)conn3=c;
       const cLabel=connCount===1?'P2':connCount===2?'P3':'P4';
-      document.getElementById('host-status').textContent=hostMode==='4p'?`WAITING FOR PLAYERS (${connCount}/3)...`:`CONNECTED! WAITING FOR P2...`;
+      hs.className='lstatus success';
+      hs.textContent=hostMode==='4p'?`WAITING FOR PLAYERS (${connCount}/3)...`:`CONNECTED! WAITING FOR P2...`;
       c.on('open',()=>{onlineOK=true;});
       c.on('data',d=>{
         if(d&&d.t==='ready'){
@@ -2455,24 +2500,25 @@ function createRoom(){
       c.on('error',e=>console.warn('conn err',e));
     });
   });
-  p.on('error',e=>{clearTimeout(to);document.getElementById('host-status').textContent='ERR: '+e.type;});
+  p.on('error',e=>{clearTimeout(to);hs.textContent='ERR: '+e.type;hs.className='lstatus error';});
 }
 
 function joinRoom(code){
   const clean=code.replace(/[^a-zA-Z0-9]/g,'');
-  if(clean.length<4){document.getElementById('join-status').textContent='CODE TOO SHORT';return;}
-  document.getElementById('join-status').textContent='CREATING PEER...';
-  let p;try{p=new Peer(undefined,{debug:0});}catch(e){document.getElementById('join-status').textContent='PEER ERROR';return;}
-  const to=setTimeout(()=>document.getElementById('join-status').textContent='TIMEOUT',12000);
+  const js=document.getElementById('join-status');js.className='lstatus';
+  if(clean.length<4){js.textContent='CODE TOO SHORT';js.className='lstatus error';return;}
+  js.textContent='CREATING PEER...';js.className='lstatus loading';
+  let p;try{p=new Peer(undefined,{debug:0});}catch(e){js.textContent='PEER ERROR';js.className='lstatus error';return;}
+  const to=setTimeout(()=>{js.textContent='TIMEOUT';js.className='lstatus error';},12000);
   p.on('open',()=>{
     clearTimeout(to);peer=p;isHost=false;gameMode='online';myRole='p2';
-    document.getElementById('join-status').textContent='CONNECTING TO HOST...';
+    js.textContent='CONNECTING TO HOST...';js.className='lstatus loading';
     const c=p.connect(clean,{serialization:'json',reliable:true});
     conn=c;
-    const cto=setTimeout(()=>document.getElementById('join-status').textContent='HOST NOT FOUND',10000);
+    const cto=setTimeout(()=>{js.textContent='HOST NOT FOUND';js.className='lstatus error';},10000);
     c.on('open',()=>{
       clearTimeout(cto);onlineOK=true;
-      document.getElementById('join-status').textContent='CONNECTED! WAITING...';
+      js.textContent='CONNECTED! WAITING...';js.className='lstatus success';
       // Signal host we are ready
       try{c.send({t:'ready'});}catch(e){}
     });
@@ -2488,9 +2534,9 @@ function joinRoom(code){
       }
     });
     c.on('close',onDisconn);
-    c.on('error',e=>{clearTimeout(cto);document.getElementById('join-status').textContent='CONN FAILED';});
+    c.on('error',e=>{clearTimeout(cto);js.textContent='CONN FAILED';js.className='lstatus error';});
   });
-  p.on('error',e=>{clearTimeout(to);document.getElementById('join-status').textContent='ERR: '+e.type;});
+  p.on('error',e=>{clearTimeout(to);js.textContent='ERR: '+e.type;js.className='lstatus error';});
 }
 
 function onData(d){
@@ -3607,17 +3653,17 @@ document.getElementById('btn-play').onclick=()=>{
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&state==='lobby'&&lobbyEl.style.display!=='none'&&document.getElementById('menu-main').style.display!=='none'){document.getElementById('btn-play').click();}});
 function peerReady(){return typeof Peer!=='undefined';}
 document.getElementById('btn-host').onclick=()=>{
-  if(!peerReady()){document.getElementById('host-status').textContent='PEERJS NOT LOADED — CHECK INTERNET';return;}
+  if(!peerReady()){const el=document.getElementById('host-status');el.textContent='PEERJS NOT LOADED — CHECK INTERNET';el.className='lstatus error';return;}
   document.getElementById('menu-main').style.display='none';
   document.getElementById('menu-host').style.display='flex';
   gameMode='online';isHost=true;
   createRoom();
 };
 document.getElementById('btn-join').onclick=()=>{
-  if(!peerReady()){document.getElementById('join-status').textContent='PEERJS NOT LOADED — CHECK INTERNET';return;}
+  if(!peerReady()){const el=document.getElementById('join-status');el.textContent='PEERJS NOT LOADED — CHECK INTERNET';el.className='lstatus error';return;}
   document.getElementById('menu-main').style.display='none';
   document.getElementById('menu-join').style.display='flex';
-  document.getElementById('join-status').textContent='';
+  const js=document.getElementById('join-status');js.textContent='';js.className='lstatus';
   document.getElementById('room-input').value='';
   document.getElementById('room-input').focus();
 };
