@@ -67,7 +67,7 @@ body.game-active::after{
 #lobby{
   position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;
   background:var(--bg);z-index:100;gap:4px;padding:8px 10px;
-  overflow-y:hidden;overflow-x:hidden;
+  overflow:hidden;
   /* atmosphere grid */
   background-image:
     linear-gradient(rgba(0,255,136,.025) 1px,transparent 1px),
@@ -100,14 +100,16 @@ body.game-active::after{
   border:1px solid var(--border);border-radius:3px;
   padding:6px 10px;width:100%;display:flex;flex-direction:column;gap:4px;
   box-shadow:var(--card-shadow);
-  position:relative;overflow:hidden;
+  position:relative;overflow:hidden;min-width:0;
 }
-/* Card top accent line */
 .lobby-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,var(--green),transparent);
   opacity:.4;
 }
+.lobby-card>.lobby-card{width:auto;}
+.lbtn,.dbtn,.linput{max-width:100%;}
+.lbtn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .lobby-card h2{
   font-size:6px;color:var(--green);
   text-shadow:0 0 4px rgba(0,255,136,.3);
@@ -119,7 +121,7 @@ body.game-active::after{
   border:1px solid var(--green);background:linear-gradient(180deg,rgba(0,40,0,.9),rgba(0,20,0,.9));
   color:var(--green);cursor:pointer;border-radius:2px;text-align:center;
   transition:transform .06s,box-shadow .06s,background .06s;
-  width:100%;letter-spacing:1px;position:relative;overflow:hidden;
+  width:100%;letter-spacing:1px;position:relative;overflow:hidden;min-width:0;
 }
 .lbtn::before{
   content:'';position:absolute;inset:0;
@@ -663,9 +665,9 @@ body.has-controls #wrap canvas{
   <h1>PIXEL<br>BLASTER DX</h1>
 
   <!-- Main menu -->
-  <div id="menu-main" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:min(560px,96vw);max-height:calc(100vh - 50px);overflow-y:hidden;">
+  <div id="menu-main" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;width:min(560px,calc(100vw - 20px));max-height:calc(100vh - 50px);overflow:hidden;">
     <!-- Left Column -->
-    <div style="display:flex;flex-direction:column;gap:6px;min-width:0;">
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0;overflow:hidden;">
       <!-- Name -->
       <div class="lobby-card" style="flex-direction:row;align-items:center;gap:6px;padding:5px 10px;">
         <span style="font-size:6px;color:#446644;white-space:nowrap;">NAME</span>
@@ -707,11 +709,11 @@ body.has-controls #wrap canvas{
       <!-- Upgrades -->
       <div class="lobby-card" id="upgrade-card">
         <h2>🏪 UPGRADES</h2>
-        <div id="upgrade-list" style="display:grid;grid-template-columns:1fr 1fr;gap:2px;"></div>
+        <div id="upgrade-list" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2px;"></div>
       </div>
     </div>
     <!-- Right Column -->
-    <div style="display:flex;flex-direction:column;gap:6px;min-width:0;">
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0;overflow:hidden;">
       <!-- Leaderboard -->
       <div class="lobby-card" style="padding:5px 10px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
