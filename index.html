@@ -1580,7 +1580,7 @@ function showPowerSelect(){
   const pool=PTYPES.filter(t=>t!=='bomb'); // bomb excluded from selection (still drops)
   const shuffled=[...pool].sort(()=>Math.random()-.5).slice(0,3);
   const el=document.getElementById('power-select');
-  if(!el)return;
+  if(!el){powerSelectActive=false;return;}
   el.style.display='flex';
   const freePick=powerPicked.length===0;
   el.innerHTML=`
@@ -2163,7 +2163,11 @@ function applySnapshot(d){
 // ══════════════════════════════════════════
 function update(){
   if((state!=='playing'&&state!=='title')||gamePaused)return;
-  if(powerSelectActive)return;
+  if(powerSelectActive){
+    const psEl=document.getElementById('power-select');
+    if(!psEl||psEl.style.display==='none'){powerSelectActive=false;}
+    else return;
+  }
   frameCount++;
 
   // Stars
@@ -2351,11 +2355,14 @@ function update(){
     if(enemyMoveTimer>=spd){
       enemyMoveTimer=0;
       const grid=enemies.filter(e=>!e.diving);
+      if(grid.length){
       if(enemyDropPending){grid.forEach(e=>{e.y+=14;});enemyDir*=-1;enemyDropPending=false;}
       else{
         grid.forEach(e=>{e.x+=enemyDir*10;});
-        const mn=Math.min(...grid.map(e=>e.x)),mx=Math.max(...grid.map(e=>e.x+e.w));
+        const xs=grid.map(e=>e.x),xe=grid.map(e=>e.x+e.w);
+        const mn=Math.min(...xs),mx=Math.max(...xe);
         if(mx>W-4||mn<4)enemyDropPending=true;
+      }
       }
     }
     // Shoot
@@ -3039,13 +3046,14 @@ function pollGamepads(){
     const g=gs[i];
     if(g&&g.connected){
       const id='g'+i;
+      const ax=g.axes;const bt=g.buttons;
       gamepads[id]={
-        left:g.axes[0]<-0.3||g.buttons[14].pressed,
-        right:g.axes[0]>0.3||g.buttons[15].pressed,
-        shoot:g.buttons[0].pressed||g.buttons[7].pressed,
-        bomb:g.buttons[1].pressed||g.buttons[3].pressed,
-        ability:g.buttons[2].pressed||g.buttons[4].pressed,
-        pause:g.buttons[9].pressed,
+        left:ax&&ax[0]<-0.3||bt&&bt[14]&&bt[14].pressed,
+        right:ax&&ax[0]>0.3||bt&&bt[15]&&bt[15].pressed,
+        shoot:bt&&bt[0]&&bt[0].pressed||bt&&bt[7]&&bt[7].pressed,
+        bomb:bt&&bt[1]&&bt[1].pressed||bt&&bt[3]&&bt[3].pressed,
+        ability:bt&&bt[2]&&bt[2].pressed||bt&&bt[4]&&bt[4].pressed,
+        pause:bt&&bt[9]&&bt[9].pressed,
       };
     }
   }
@@ -3268,7 +3276,8 @@ let lastFrameTime=0;
 function loop(t){
   if(t-lastFrameTime<16)return requestAnimationFrame(loop);
   lastFrameTime=t;
-  update();draw();requestAnimationFrame(loop);
+  try{update();draw();}catch(e){console.error('LOOP ERROR',e);}
+  requestAnimationFrame(loop);
 }
 loadSettings();loadCoins();loadStats();loadAchs();
 renderUpgrades();updateCoinUI();renderAchievements();
