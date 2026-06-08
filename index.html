@@ -1409,12 +1409,94 @@ function toggleSound(){
 }
 
 // ══════════════════════════════════════════
-//  STARS
+//  PARALLAX BACKGROUND
 // ══════════════════════════════════════════
-const stars=Array.from({length:100},()=>({x:Math.random()*W,y:Math.random()*H,s:Math.random()<.2?2:1,sp:.3+Math.random()*1.4,ph:Math.random()*6.28}));
+const starLayers=[
+  {stars:Array.from({length:120},()=>({x:Math.random()*W,y:Math.random()*H,s:1,sp:.2+Math.random()*.4})),baseAlpha:.2,color:'#aaccff'},
+  {stars:Array.from({length:60},()=>({x:Math.random()*W,y:Math.random()*H,s:1+~~(Math.random()*2),sp:.6+Math.random()*.8})),baseAlpha:.5,color:'#cceeff'},
+  {stars:Array.from({length:20},()=>({x:Math.random()*W,y:Math.random()*H,s:2+~~(Math.random()*2),sp:1.5+Math.random()*1.5})),baseAlpha:.85,color:'#ffffff'},
+];
+let nebulaOffset=0;
 function drawStars(){
   const t=Date.now()/1000;
-  stars.forEach(s=>{const a=.3+.7*Math.abs(Math.sin(t+s.ph));ctx.fillStyle=`rgba(255,255,255,${a*(s.s===2?.9:.4)})`;ctx.fillRect(~~s.x,~~s.y,s.s,s.s);});
+  // Nebula background
+  const grad=ctx.createRadialGradient(W/2,H/2,20,W/2,H/2,240);
+  grad.addColorStop(0,'rgba(10,0,30,0)');
+  grad.addColorStop(.4,`rgba(${20+~~(Math.sin(t*.1)*10)},${5+~~(Math.sin(t*.07)*5)},${40+~~(Math.sin(t*.13)*15)},.04)`);
+  grad.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+  // Small drifting nebula wisps
+  for(let i=0;i<3;i++){
+    const wx=(W/3*(i+1)+Math.sin(t*.02+i*2)*W/4+nebulaOffset)%(W+80)-40;
+    const wy=H/2+Math.sin(t*.015+i*3)*H/3;
+    const wg=ctx.createRadialGradient(wx,wy,0,wx,wy,60+~~(Math.sin(t*.01+i)*20));
+    wg.addColorStop(0,`rgba(40,10,60,${.02+Math.sin(t*.02+i)*.01})`);
+    wg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=wg;ctx.fillRect(wx-80,wy-80,160,160);
+  }
+  // Star layers
+  const twinkle=t*.8;
+  starLayers.forEach((layer,li)=>{
+    const dr=(li+1)*.004; // slight drift per layer
+    layer.stars.forEach(s=>{
+      const tw=Math.abs(Math.sin(twinkle+s.x*.01+s.y*.005+li));
+      const alpha=layer.baseAlpha*(.5+.5*tw);
+      ctx.fillStyle=layer.color;
+      ctx.globalAlpha=alpha;
+      if(s.s>=3){ctx.fillRect(~~s.x-1,~~s.y-1,s.s+2,s.s+2);}
+      else ctx.fillRect(~~s.x,~~s.y,s.s,s.s);
+    });
+  });
+  ctx.globalAlpha=1;
+}
+function updateStars(){
+  starLayers.forEach(layer=>{
+    layer.stars.forEach(s=>{
+      s.y+=s.sp;
+      if(s.y>H+4){s.y=-4;s.x=Math.random()*W;}
+    });
+  });
+  nebulaOffset+=.05;
+}
+
+// ── SHIP ENGINE EXHAUST ──
+let exhaustParticles=[];
+function emitExhaust(pl,isMoving){
+  if(pl.dead)return;
+  const dir=isMoving>0?1:isMoving<0?-1:0;
+  const freq=isMoving?4:8;
+  if(frameCount%freq!==0)return;
+  const spread=isMoving?.3:.6;
+  for(let i=0;i<2;i++){
+    exhaustParticles.push({
+      x:pl.x+pl.w/2+dir*(pl.w/2+2)+(Math.random()-.5)*10,
+      y:pl.y+pl.h-2+Math.random()*4,
+      vx:(Math.random()-.5)*spread-dir*.8,
+      vy:.5+Math.random()*1.5,
+      life:12+~~(Math.random()*10),
+      maxLife:22,
+      size:2+~~(Math.random()*3),
+      col:pl.id==='p2'?[0,180,255]:[255,200,50],
+    });
+  }
+}
+function updateExhaust(){
+  exhaustParticles.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;p.life--;
+    p.vx*=.92;p.vy*=.94;
+    p.size*=.97;
+  });
+  exhaustParticles=exhaustParticles.filter(p=>p.life>0).slice(-150);
+}
+function drawExhaust(){
+  exhaustParticles.forEach(p=>{
+    const alpha=p.life/p.maxLife;
+    const [r,g,b]=p.col;
+    ctx.globalAlpha=alpha*.6;
+    ctx.fillStyle=`rgb(${r},${g},${b})`;
+    ctx.fillRect(~~p.x,~~p.y,Math.max(1,~~p.size),Math.max(1,~~p.size));
+    ctx.globalAlpha=1;
+  });
 }
 
 // ══════════════════════════════════════════
@@ -1943,6 +2025,7 @@ function updatePlayer(pl,inp){
   if(inp.left&&pl.x>0)pl.x-=spd;
   if(inp.right&&pl.x+pl.w<W)pl.x+=spd;
   pl.x=Math.max(0,Math.min(W-pl.w,pl.x));
+  emitExhaust(pl,inp.left?-1:inp.right?1:0);
   pl.shootCD--;
   const rate=pl.rapid>0?(pl._rapidBoost?2:5):pl.triple>0?8:14;
   if(inp.shoot&&pl.shootCD<=0){
@@ -2177,7 +2260,7 @@ function update(){
   frameCount++;
 
   // Stars
-  stars.forEach(s=>{s.y+=s.sp;if(s.y>H){s.y=0;s.x=Math.random()*W;}});
+  updateStars();
 
   // Screen shake countdown
   if(screenShakeTimer>0)screenShakeTimer--;
@@ -2528,6 +2611,7 @@ function update(){
   particles=particles.filter(p=>p.life>0).slice(-500);
   floaters.forEach(f=>{f.y+=f.vy;f.life-=.025;});
   floaters=floaters.filter(f=>f.life>0).slice(-100);
+  updateExhaust();
 
   // Host sends snapshot ~20fps
   if(gameMode==='online'&&isHost&&frameCount%3===0){
@@ -2582,7 +2666,7 @@ function draw(){
   ctx.save();ctx.translate(sx,sy);
 
   ctx.fillStyle='#05050f';ctx.fillRect(-10,-10,W+20,H+20);
-  drawStars();
+  drawStars();drawExhaust();
 
   if(state==='lobby'){ctx.restore();return;}
 
