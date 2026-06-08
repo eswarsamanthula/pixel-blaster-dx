@@ -664,7 +664,7 @@ body.has-controls #wrap canvas{
   <h1>PIXEL<br>BLASTER DX</h1>
 
   <!-- Main menu -->
-  <div id="menu-main" style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;width:min(1100px,92vw);max-height:calc(100vh - 80px);overflow:hidden;">
+  <div id="menu-main" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;width:min(900px,85vw);max-height:calc(100vh - 80px);overflow:hidden;">
     <!-- Left Column -->
     <div style="display:flex;flex-direction:column;gap:8px;min-width:0;overflow:hidden;">
       <!-- Name -->
@@ -706,7 +706,7 @@ body.has-controls #wrap canvas{
         <button class="lbtn" id="btn-settings-lobby" style="flex:0 0 auto;font-size:8px;padding:8px 10px;width:auto;">⚙</button>
       </div>
       <!-- Upgrades -->
-      <div class="lobby-card" id="upgrade-card" style="flex:1;">
+      <div class="lobby-card" id="upgrade-card">
         <h2>🏪 UPGRADES</h2>
         <div id="upgrade-list" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px;"></div>
       </div>
@@ -727,14 +727,14 @@ body.has-controls #wrap canvas{
         <div id="skin-list" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;"></div>
       </div>
       <!-- Achievements -->
-      <div class="lobby-card" id="ach-card" style="flex:1;">
+      <div class="lobby-card" id="ach-card">
         <h2>🎖 ACHIEVEMENTS</h2>
         <div id="ach-list" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
       </div>
       <!-- Stats -->
-      <div class="lobby-card" id="stats-card" style="display:none;">
+      <div class="lobby-card" id="stats-card">
         <h2>📊 STATS</h2>
-        <div id="stats-list" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2px;"></div>
+        <div id="stats-list" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2px;font-size:7px;color:var(--text-dim);">START PLAYING TO SEE STATS</div>
       </div>
     </div>
   </div>
@@ -1165,9 +1165,7 @@ function renderAchievements(){
 function renderStats(){
   const el=document.getElementById('stats-card');
   if(!el)return;
-  const hasData=stats.kills>0||stats.gamesPlayed>0;
-  el.style.display=hasData?'flex':'none';
-  if(!hasData)return;
+  el.style.display='flex';
   const list=document.getElementById('stats-list');
   if(!list)return;
   const items=[
@@ -1178,7 +1176,7 @@ function renderStats(){
     ['👹','BOSSES KILLED',stats.bossesKilled],
     ['🔥','BEST COMBO',stats.highestCombo],
   ];
-  list.innerHTML=items.map(([icon,label,val])=>`<div class="lb-row"><span style="font-size:10px;">${icon}</span><span class="lb-name" style="font-size:8px;">${label}</span><span style="font-size:9px;color:var(--gold);">${val}</span></div>`).join('');
+  list.innerHTML=items.map(([icon,label,val])=>`<div class="lb-row" style="font-size:7px;padding:3px 0;"><span style="font-size:9px;">${icon}</span><span style="font-size:7px;flex:1;color:var(--text-dim);">${label}</span><span style="font-size:7px;color:var(--gold);">${val}</span></div>`).join('');
 }
 function shareScore(){
   if(!navigator.share)return;
