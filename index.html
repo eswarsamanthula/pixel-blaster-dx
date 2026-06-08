@@ -589,6 +589,11 @@ canvas{
 #overlay h1{font-size:clamp(16px,4vw,26px);color:var(--green);text-shadow:0 0 20px var(--green),4px 4px 0 var(--green-dark);animation:bglow 1.5s ease-in-out infinite alternate;text-align:center;line-height:1.5;}
 .o-hisc{font-size:9px;color:var(--gold);text-shadow:0 0 8px var(--gold);}
 .o-sub{font-size:9px;color:var(--purple);text-shadow:0 0 8px var(--purple);}
+.o-score{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.o-score-label{font-size:7px;color:var(--text-dim);letter-spacing:2px;}
+.o-score-val{font-size:28px;color:var(--gold);text-shadow:0 0 20px var(--gold),0 0 40px rgba(255,204,0,.3);font-weight:bold;letter-spacing:2px;animation:scorePop .3s ease-out both;}
+@keyframes scorePop{from{transform:scale(.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+#overlay.gameover-anim .o-score{animation:gameoverItem .4s ease-out both;animation-delay:.15s;}
 .o-blink{font-size:8px;color:var(--gold);animation:blink 1s step-start infinite;pointer-events:auto;cursor:pointer;}
 .o-hint{font-size:7px;color:var(--ohint);text-align:center;line-height:2;}
 .o-back{font-size:7px;color:var(--text-dim);cursor:pointer;text-decoration:underline;margin-top:2px;pointer-events:auto;}
@@ -2944,6 +2949,18 @@ function showCountdown(cb){
 
 function showGameOver(){
   haptic(100);
+  // Particle burst
+  for(let i=0;i<60;i++){
+    const ang=Math.random()*6.2832;
+    const spd=1+Math.random()*4;
+    const hue=~~(Math.random()*60+20);
+    particles.push({
+      x:W/2+Math.random()*40-20,y:H/2+Math.random()*40-20,
+      vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,
+      life:40+~~(Math.random()*30),decay:.6+Math.random()*.4,
+      col:`hsl(${hue},100%,${50+~~(Math.random()*30)}%)`
+    });
+  }
   // Hide wave banner immediately
   waveBanner.style.display='none';waveClearTimer=0;
   comboDis.style.display='none';combo=0;
@@ -2961,19 +2978,43 @@ function showGameOver(){
 function showGameOverMsg(title,w,scores,hi){
   overlayEl.style.display='flex';
   overlayEl.classList.remove('gameover-anim');
-  void overlayEl.offsetWidth; // force reflow
+  void overlayEl.offsetWidth;
   overlayEl.classList.add('gameover-anim');
   const s4=local4Mode?`P1:${score1} P2:${score2} P3:${p3?score1:0} P4:${p4?score2:0}`:'';
+  // Extract score numbers for count-up
+  const scoreMatch=scores?scores.match(/\d+/g):null;
+  const finalScore=scoreMatch?parseInt(scoreMatch[0]):0;
+  const rivalScore=scoreMatch&&scoreMatch[1]?parseInt(scoreMatch[1]):0;
+  const hiMatch=hi?hi.match(/\d+/g):null;
+  const finalHi=hiMatch?parseInt(hiMatch[0]):0;
   overlayEl.innerHTML=`
     <h1 style="color:#ff4466;text-shadow:0 0 20px #ff4466,4px 4px 0 #440011;animation:none;">${title}</h1>
     ${w?`<div class="o-sub">${w}</div>`:''}
-    ${s4||scores?`<div class="o-hisc">${s4||scores}</div>`:''}
-    ${hi?`<div class="o-hisc">${hi}</div>`:''}
+    ${s4?`<div class="o-hisc">${s4}</div>`:scores?`<div class="o-score"><span class="o-score-label">SCORE</span><span class="o-score-val" id="go-score">0</span></div>`:''}
+    ${gameMode!=='single'&&rivalScore>0?`<div class="o-score" style="margin-top:2px;"><span class="o-score-label">RIVAL</span><span class="o-score-val" id="go-rival">0</span></div>`:''}
+    ${hi?`<div class="o-hisc" id="go-hi">HI: 0</div>`:''}
     ${reviveAvailable&&!local4Mode?`<div class="o-blink" id="btn-revive" style="color:var(--green);text-shadow:0 0 10px var(--green);">❤️ REVIVE? 🪙 50</div>`:''}
     <div class="o-blink" id="btn-retry" style="cursor:pointer;">TAP / CLICK TO RETRY</div>
     <div class="o-back" id="btn-to-menu">← MENU</div>
     ${typeof navigator.share==='function'?`<div class="o-back" id="btn-share" style="margin-top:2px;">📤 SHARE SCORE</div>`:''}
   `;
+  // Animate score count-up
+  const goScore=document.getElementById('go-score');
+  const goRival=document.getElementById('go-rival');
+  const goHi=document.getElementById('go-hi');
+  let startTime=null;
+  const dur=1200;
+  function tick(now){
+    if(!startTime)startTime=now;
+    const p=Math.min(1,(now-startTime)/dur);
+    const ease=1-Math.pow(1-p,3);
+    if(goScore)goScore.textContent=~~(finalScore*ease);
+    if(goRival)goRival.textContent=~~(rivalScore*ease);
+    if(goHi)goHi.textContent='HI: '+~~(finalHi*ease);
+    if(p<1)requestAnimationFrame(tick);
+  }
+  setTimeout(()=>requestAnimationFrame(tick),350);
+  // Wire buttons
   const retryBtn=document.getElementById('btn-retry');
   if(retryBtn)retryBtn.onclick=()=>{startGame();};
   const reviveBtn=document.getElementById('btn-revive');
