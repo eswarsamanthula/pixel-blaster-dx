@@ -1,4 +1,4 @@
-const CACHE='pixel-blaster-dx-'+(self.registration?.active?.installedTimestamp||Date.now());
+const CACHE='pixel-blaster-dx-v2';
 const URLS=['./','./index.html','./manifest.json','https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js'];
 
 self.addEventListener('install',e=>{
@@ -15,6 +15,9 @@ self.addEventListener('activate',e=>{
 
 self.addEventListener('fetch',e=>{
   e.respondWith(
-    caches.match(e.request).then(r=>r||fetch(e.request))
+    caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>{
+      if(e.request.mode==='navigate')return caches.match('./index.html');
+      return new Response('Offline',{status:503});
+    }))
   );
 });
