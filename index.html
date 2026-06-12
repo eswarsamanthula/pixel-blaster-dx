@@ -1233,114 +1233,7 @@ body.has-controls #wrap canvas{
   gap:6px;
 }
 
-/* ── 2. HERO HEADER: bolder, more presence ── */
-.grid-hero{
-  border-color:var(--green);
-  box-shadow:0 0 0 1px rgba(0,255,136,.12),0 0 40px rgba(0,255,136,.08);
-  padding:10px 20px;
-}
-.grid-hero .hero-title{
-  font-size:clamp(14px,1.8vw,20px);
-  letter-spacing:6px;
-  text-shadow:0 0 40px var(--green),0 0 80px rgba(0,255,136,.15);
-}
-.grid-hero .hero-sub{
-  letter-spacing:5px;
-  color:var(--text-dim);
-  margin-top:2px;
-}
-#lobby-coins{
-  font-family:var(--font-display);
-  font-size:14px !important;
-  font-weight:700;
-  color:var(--gold);
-  text-shadow:0 0 16px var(--gold-glow);
-  padding:4px 10px;
-  border:1px solid rgba(255,204,0,.25);
-  border-radius:4px;
-  background:rgba(255,204,0,.06);
-}
-
-/* ── 3. START GAME button: pulsing, commanding ── */
-.btn-play{
-  font-size:12px !important;
-  padding:14px 18px !important;
-  background:linear-gradient(180deg,#00e87a,#00c866) !important;
-  border:none !important;
-  border-radius:5px !important;
-  letter-spacing:3px !important;
-  position:relative;
-  overflow:hidden;
-  box-shadow:0 0 0 1px rgba(0,255,136,.4),
-             0 0 24px rgba(0,255,136,.3),
-             0 4px 16px rgba(0,0,0,.5),
-             inset 0 1px 0 rgba(255,255,255,.15) !important;
-  animation:startPulse 2.2s ease-in-out infinite;
-  transition:all .15s;
-}
-@keyframes startPulse{
-  0%,100%{box-shadow:0 0 0 1px rgba(0,255,136,.4),0 0 24px rgba(0,255,136,.3),0 4px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.15);}
-  50%{box-shadow:0 0 0 1px rgba(0,255,136,.6),0 0 48px rgba(0,255,136,.5),0 4px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.15);}
-}
-.btn-play:hover{
-  transform:scale(1.025) translateY(-1px) !important;
-  box-shadow:0 0 0 1px var(--green),0 0 60px rgba(0,255,136,.55),0 8px 24px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.2) !important;
-}
-.btn-play-sub{
-  font-size:7px !important;
-  letter-spacing:2px !important;
-  opacity:.55 !important;
-}
-
-/* ── 4. DIFFICULTY buttons: clear active state ── */
-.dbtn{
-  font-size:8px;
-  padding:8px 4px;
-  border:1px solid var(--border-dim);
-  transition:all .15s;
-  border-radius:3px;
-}
-.dbtn.active{
-  border-color:var(--pink) !important;
-  color:var(--pink) !important;
-  background:linear-gradient(180deg,rgba(255,45,120,.12),rgba(255,45,120,.04)) !important;
-  box-shadow:0 0 12px var(--pink-glow),inset 0 0 8px rgba(255,45,120,.08) !important;
-  text-shadow:0 0 10px var(--pink) !important;
-  font-weight:900;
-}
-.dbtn:not(.active):hover{
-  border-color:rgba(255,45,120,.4);
-  color:var(--text-body);
-}
-
-/* ── 5. MODE buttons: cleaner active state ── */
-.mode-btn.active{
-  border-color:var(--gold) !important;
-  color:var(--gold) !important;
-  background:linear-gradient(180deg,rgba(255,204,0,.12),rgba(255,204,0,.04)) !important;
-  box-shadow:0 0 10px var(--gold-glow),inset 0 0 6px rgba(255,204,0,.06) !important;
-  text-shadow:0 0 8px var(--gold) !important;
-}
-
-/* ── 6. CARD headings: more visible, consistent ── */
-.lobby-grid .grid-card h2{
-  font-size:8px !important;
-  letter-spacing:4px !important;
-  color:var(--text-dim) !important;
-  text-shadow:none !important;
-  text-transform:uppercase;
-  border-bottom:1px solid rgba(0,255,136,.08) !important;
-  padding-bottom:5px !important;
-  margin-bottom:4px !important;
-}
-
-/* ── 7. LEADERBOARD: rank differentiation ── */
-#leaderboard-list .lb-entry:nth-child(1) .lb-name,
-#leaderboard-list .lb-row:nth-child(1) .lb-name{
-  color:var(--gold);
-  text-shadow:0 0 8px var(--gold-glow);
-}
-#leaderboard-list .lb-entry:nth-child(1),
+/* ── 7. LEADERBOARD: rank left-border accents ── */
 #leaderboard-list .lb-row:nth-child(1){
   padding:5px 0 5px 4px;
   background:linear-gradient(90deg,rgba(255,204,0,.06),transparent);
@@ -1348,159 +1241,53 @@ body.has-controls #wrap canvas{
   border-left:2px solid var(--gold);
   margin-bottom:2px;
 }
-#leaderboard-list .lb-entry:nth-child(2),
 #leaderboard-list .lb-row:nth-child(2){
   padding-left:4px;
   border-left:2px solid var(--silver);
 }
-#leaderboard-list .lb-entry:nth-child(3),
 #leaderboard-list .lb-row:nth-child(3){
   padding-left:4px;
   border-left:2px solid var(--bronze);
 }
-#leaderboard-list .lb-entry .lb-rank,
-#leaderboard-list .lb-row .lb-rank{
-  font-size:8px !important;
-}
-#leaderboard-list .lb-entry:nth-child(1) .lb-rank,
 #leaderboard-list .lb-row:nth-child(1) .lb-rank{
-  font-size:10px !important;
-  text-shadow:0 0 14px var(--gold) !important;
+  font-size:10px;
+  text-shadow:0 0 14px var(--gold);
 }
 #btn-global-lb{
   font-size:7px;
   padding:3px 8px;
-  border-color:rgba(255,204,0,.3) !important;
+  border-color:rgba(255,204,0,.3);
   background:rgba(255,204,0,.06);
 }
 
-/* ── 8. SHIP skin card: active skin highlighted ── */
-.skin-thumb.active,.skin-thumb-row canvas.active{
-  border-color:var(--gold) !important;
-  box-shadow:0 0 10px var(--gold-glow),0 0 0 1px var(--gold) !important;
-  transform:scale(1.15);
-}
-.skin-name{
-  font-size:10px !important;
-  color:var(--green) !important;
-  text-shadow:0 0 8px var(--green-glow) !important;
-  letter-spacing:2px;
-}
-#skin-card .skin-preview-main,#skin-card canvas.skin-preview-main{
-  border-color:rgba(0,255,136,.3) !important;
-  box-shadow:0 0 12px rgba(0,255,136,.1) !important;
-  width:48px !important;
-  height:36px !important;
-}
+/* ── CONTROLS card: deemphasise ── */
+.grid-h9{opacity:.75;}
+.grid-h9 h2{font-size:7px;}
+.grid-h9>div{font-size:7px;line-height:1.8;}
 
-/* ── 9. STATS: label/value contrast ── */
-.stats-grid{
-  gap:3px 14px !important;
-  font-size:8px !important;
-}
-.stats-grid>span:not(.stat-val){
-  color:var(--text-muted);
-  font-size:7px;
-  letter-spacing:.5px;
-}
-.stat-val{
-  color:var(--text-body) !important;
-  font-size:9px !important;
-  font-weight:700;
-  text-shadow:0 0 6px rgba(0,255,136,.2);
-}
-
-/* ── 10. UPGRADES: connected label+cost layout ── */
-.upgrade-grid{
-  gap:5px !important;
-}
-.upgrade-item{
-  padding:6px 8px !important;
-  border-radius:4px !important;
-  gap:3px !important;
-  background:rgba(0,0,0,.35) !important;
-  border-color:rgba(0,255,136,.1) !important;
-}
-.upgrade-item:hover{
-  border-color:rgba(0,255,136,.35) !important;
-  background:rgba(0,255,136,.04) !important;
-}
-.upgrade-item .u-name{
-  font-size:8px !important;
-  color:var(--text-body) !important;
-  line-height:1.3;
-}
-.upgrade-item .u-level{
-  color:var(--gold) !important;
-  font-size:7px !important;
-}
-.upgrade-item .u-price{
-  color:var(--cyan) !important;
-  font-size:7px !important;
-}
-
-/* ── 11. ACHIEVEMENTS: unlocked vs locked clarity ── */
-.ach-badge{
-  border-radius:4px !important;
-  padding:4px 8px !important;
-  font-size:8px !important;
-}
-.ach-badge.locked{
-  opacity:.2 !important;
-  filter:grayscale(1) !important;
-}
-.ach-badge.unlocked{
-  border-color:var(--gold) !important;
-  background:rgba(255,204,0,.06) !important;
-  box-shadow:0 0 8px var(--gold-glow) !important;
-}
-
-/* ── 12. CONTROLS card: slim it down, deemphasise ── */
-.grid-h9{
-  opacity:.75;
-}
-.grid-h9 h2{
-  font-size:7px !important;
-}
-.grid-h9>div{
-  font-size:7px !important;
-  line-height:1.8 !important;
-}
-
-/* ── 13. INPUT: crisper focus ── */
-.linput:focus{
-  border-color:var(--green) !important;
-  box-shadow:0 0 0 1px rgba(0,255,136,.15),0 0 12px rgba(0,255,136,.1) !important;
-}
-
-/* ── 14. ONLINE buttons: clearer colour coding ── */
+/* ── ONLINE buttons ── */
 .btn-red{
-  border-color:rgba(255,68,102,.4) !important;
-  color:var(--red) !important;
+  border-color:rgba(255,68,102,.4);
+  color:var(--red);
 }
 .btn-red:hover{
-  background:rgba(255,68,102,.08) !important;
-  box-shadow:0 0 10px var(--red-glow) !important;
+  background:rgba(255,68,102,.08);
+  box-shadow:0 0 10px var(--red-glow);
 }
 .btn-gold{
-  border-color:rgba(255,204,0,.35) !important;
-  color:var(--gold) !important;
+  border-color:rgba(255,204,0,.35);
+  color:var(--gold);
 }
 .btn-gold:hover{
-  background:rgba(255,204,0,.08) !important;
-  box-shadow:0 0 10px var(--gold-glow) !important;
+  background:rgba(255,204,0,.08);
+  box-shadow:0 0 10px var(--gold-glow);
 }
 
-/* ── 15. FOOTER: more subtle ── */
+/* ── FOOTER ── */
 .grid-footer{
-  font-size:7px !important;
+  font-size:7px;
   opacity:.5;
-  letter-spacing:3px !important;
-}
-
-/* ── 16. CARD hover accent line ── */
-.lobby-grid .grid-card:hover::before{
-  opacity:1 !important;
+  letter-spacing:3px;
 }
 </style>
 <noscript><div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0a0a0f;color:#00ff88;font-family:monospace;font-size:14px;text-align:center;padding:20px;">PIXEL BLASTER DX requires JavaScript to run.<br><br>Please enable JavaScript in your browser and reload.</div></noscript>
